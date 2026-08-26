@@ -1,0 +1,41 @@
+/* Custom styles beyond Tailwind */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.table-row:hover {
+  background-color: #f3f4f6;
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.sidebar-link.active {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  border-right: 3px solid #4338ca;
+}

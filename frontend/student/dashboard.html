@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - Exam Seating System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <span class="text-xl font-bold text-gray-900">ExamSeating</span>
+          <span class="ml-4 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Student</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span id="userName" class="text-sm text-gray-600"></span>
+          <button onclick="logout('student')" class="text-sm text-red-600 hover:text-red-800 font-medium">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="-mb-px flex space-x-8">
+        <button onclick="showTab('exams')" id="tab-exams" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">My Exams</button>
+        <button onclick="showTab('seats')" id="tab-seats" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">My Seat Assignments</button>
+        <button onclick="showTab('notifications')" id="tab-notifications" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Notifications</button>
+      </nav>
+    </div>
+
+    <!-- Exams Tab -->
+    <div id="view-exams" class="tab-content fade-in">
+      <div id="examsLoading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="mt-2 text-gray-500">Loading exams...</p>
+      </div>
+      <div id="examsEmpty" class="hidden text-center py-12">
+        <p class="text-gray-500">No exams scheduled yet.</p>
+      </div>
+      <div id="examsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- Seats Tab -->
+    <div id="view-seats" class="tab-content hidden fade-in">
+      <div id="seatsLoading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="mt-2 text-gray-500">Loading seat assignments...</p>
+      </div>
+      <div id="seatsEmpty" class="hidden text-center py-12">
+        <p class="text-gray-500">No seat assignments yet.</p>
+      </div>
+      <div id="seatsList" class="space-y-4"></div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div id="view-notifications" class="tab-content hidden fade-in">
+      <div id="notifLoading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="mt-2 text-gray-500">Loading notifications...</p>
+      </div>
+      <div id="notifEmpty" class="hidden text-center py-12">
+        <p class="text-gray-500">No notifications yet.</p>
+      </div>
+      <div id="notifList" class="space-y-3"></div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const api = checkAuth('student');
+    if (!api) window.location.href = '/student/login.html';
+
+    const user = JSON.parse(localStorage.getItem('student_user') || '{}');
+    document.getElementById('userName').textContent = user.full_name || 'Student';
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('border-blue-500', 'text-blue-600');
+        el.classList.add('border-transparent', 'text-gray-500');
+      });
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).classList.remove('border-transparent', 'text-gray-500');
+      document.getElementById(`tab-${tab}`).classList.add('border-blue-500', 'text-blue-600');
+      if (tab === 'exams') loadExams();
+      if (tab === 'seats') loadSeats();
+      if (tab === 'notifications') loadNotifications();
+    }
+
+    async function loadExams() {
+      document.getElementById('examsLoading').classList.remove('hidden');
+      document.getElementById('examsList').innerHTML = '';
+      document.getElementById('examsEmpty').classList.add('hidden');
+      try {
+        const data = await api.get('/exams');
+        const exams = data.data.exams || [];
+        document.getElementById('examsLoading').classList.add('hidden');
+        if (exams.length === 0) {
+          document.getElementById('examsEmpty').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('examsList').innerHTML = exams.map(exam => `
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-medium ${
+                exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+                exam.status === 'ongoing' ? 'bg-yellow-100 text-yellow-700' :
+                exam.status === 'completed' ? 'bg-green-100 text-green-700' :
+                'bg-red-100 text-red-700'
+              }">${exam.status}</span>
+              <span class="text-sm text-gray-500">${formatDate(exam.exam_date)}</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">${exam.subject_id?.subject_name || 'Unknown Subject'}</h3>
+            <p class="text-sm text-gray-500 mt-1">Code: ${exam.subject_id?.subject_code || '-'}</p>
+            <div class="mt-4 flex items-center text-sm text-gray-600">
+              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              ${exam.start_time} - ${exam.end_time}
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Type: ${exam.exam_type_id?.type_name || '-'}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('examsLoading').classList.add('hidden');
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadSeats() {
+      document.getElementById('seatsLoading').classList.remove('hidden');
+      document.getElementById('seatsList').innerHTML = '';
+      document.getElementById('seatsEmpty').classList.add('hidden');
+      try {
+        const data = await api.get('/seat-assignments/my-assignments');
+        const assignments = data.data.assignments || [];
+        document.getElementById('seatsLoading').classList.add('hidden');
+        if (assignments.length === 0) {
+          document.getElementById('seatsEmpty').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('seatsList').innerHTML = assignments.map(a => `
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">${a.exam_id?.subject_id?.subject_name || 'Exam'}</h3>
+              <p class="text-sm text-gray-500">Date: ${formatDate(a.exam_id?.exam_date)} | Time: ${a.exam_id?.start_time} - ${a.exam_id?.end_time}</p>
+              <div class="mt-2 flex items-center space-x-4">
+                <span class="flex items-center text-sm font-medium text-indigo-600">
+                  <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                  Seat: ${a.seat_id?.seat_label || '-'}
+                </span>
+                <span class="text-sm text-gray-500">Row ${a.seat_id?.row_number}, Col ${a.seat_id?.column_number}</span>
+              </div>
+              <div class="mt-1 text-sm text-gray-600">
+                <span class="font-medium">Hall:</span> ${a.seat_id?.hall_id?.hall_name || '-'}
+              </div>
+            </div>
+            <span class="px-4 py-2 rounded-lg text-sm font-medium ${
+              a.attendance_status === 'present' ? 'bg-green-100 text-green-700' :
+              a.attendance_status === 'absent' ? 'bg-red-100 text-red-700' :
+              a.attendance_status === 'late' ? 'bg-yellow-100 text-yellow-700' :
+              'bg-gray-100 text-gray-700'
+            }">${a.attendance_status}</span>
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('seatsLoading').classList.add('hidden');
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadNotifications() {
+      document.getElementById('notifLoading').classList.remove('hidden');
+      document.getElementById('notifList').innerHTML = '';
+      document.getElementById('notifEmpty').classList.add('hidden');
+      try {
+        const data = await api.get('/notifications/my-inbox');
+        const notifs = data.data.notifications || [];
+        document.getElementById('notifLoading').classList.add('hidden');
+        if (notifs.length === 0) {
+          document.getElementById('notifEmpty').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('notifList').innerHTML = notifs.map(n => `
+          <div class="bg-white rounded-xl shadow-sm border ${n.status === 'read' ? 'border-gray-100' : 'border-blue-200 bg-blue-50'} p-4 flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center space-x-2 mb-1">
+                <span class="px-2 py-0.5 rounded text-xs font-medium ${
+                  n.channel === 'email' ? 'bg-purple-100 text-purple-700' :
+                  n.channel === 'sms' ? 'bg-orange-100 text-orange-700' :
+                  'bg-blue-100 text-blue-700'
+                }">${n.channel}</span>
+                <span class="text-xs text-gray-400">${formatDateTime(n.createdAt)}</span>
+              </div>
+              <p class="text-sm text-gray-800">${n.message}</p>
+            </div>
+            ${n.status !== 'read' ? `<button onclick="markRead('${n._id}')" class="ml-4 text-xs text-blue-600 hover:underline font-medium">Mark read</button>` : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('notifLoading').classList.add('hidden');
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function markRead(id) {
+      try {
+        await api.patch(`/notifications/${id}`, {});
+        loadNotifications();
+        showToast('Marked as read');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    showTab('exams');
+  </script>
+</body>
+</html>

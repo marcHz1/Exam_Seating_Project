@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervisor Dashboard - Exam Seating System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <span class="text-xl font-bold text-gray-900">ExamSeating</span>
+          <span class="ml-4 px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">Supervisor</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span id="userName" class="text-sm text-gray-600"></span>
+          <button onclick="logout('supervisor')" class="text-sm text-red-600 hover:text-red-800 font-medium">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="border-b border-gray-200 mb-6">
+      <nav class="-mb-px flex space-x-8">
+        <button onclick="showTab('halls')" id="tab-halls" class="tab-btn border-emerald-500 text-emerald-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">My Assigned Halls</button>
+        <button onclick="showTab('attendance')" id="tab-attendance" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Take Attendance</button>
+      </nav>
+    </div>
+
+    <!-- Halls Tab -->
+    <div id="view-halls" class="tab-content fade-in">
+      <div id="hallsLoading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+        <p class="mt-2 text-gray-500">Loading assignments...</p>
+      </div>
+      <div id="hallsEmpty" class="hidden text-center py-12">
+        <p class="text-gray-500">No hall assignments found.</p>
+      </div>
+      <div id="hallsList" class="grid md:grid-cols-2 gap-6"></div>
+    </div>
+
+    <!-- Attendance Tab -->
+    <div id="view-attendance" class="tab-content hidden fade-in">
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Select Exam Hall</label>
+        <select id="attendanceHallSelect" onchange="loadAttendance()" class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+          <option value="">-- Select an exam hall --</option>
+        </select>
+      </div>
+      <div id="attendanceLoading" class="hidden text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+        <p class="mt-2 text-gray-500">Loading students...</p>
+      </div>
+      <div id="attendanceEmpty" class="hidden text-center py-12">
+        <p class="text-gray-500">No students assigned to this hall.</p>
+      </div>
+      <div id="attendanceList" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"></div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const api = checkAuth('supervisor');
+    if (!api) window.location.href = '/supervisor/login.html';
+
+    const user = JSON.parse(localStorage.getItem('supervisor_user') || '{}');
+    document.getElementById('userName').textContent = user.full_name || 'Supervisor';
+
+    let myAssignments = [];
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('border-emerald-500', 'text-emerald-600');
+        el.classList.add('border-transparent', 'text-gray-500');
+      });
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).classList.remove('border-transparent', 'text-gray-500');
+      document.getElementById(`tab-${tab}`).classList.add('border-emerald-500', 'text-emerald-600');
+      if (tab === 'halls') loadHalls();
+      if (tab === 'attendance') loadAttendanceDropdown();
+    }
+
+    async function loadHalls() {
+      document.getElementById('hallsLoading').classList.remove('hidden');
+      document.getElementById('hallsList').innerHTML = '';
+      document.getElementById('hallsEmpty').classList.add('hidden');
+      try {
+        // FIXED: Use /my-assignments instead of /supervisor-assignments
+        const data = await api.get('/supervisor-assignments/my-assignments');
+        myAssignments = data.data.assignments || [];
+        document.getElementById('hallsLoading').classList.add('hidden');
+        if (myAssignments.length === 0) {
+          document.getElementById('hallsEmpty').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('hallsList').innerHTML = myAssignments.map(a => {
+          // FIXED: Use nested populated paths
+          const exam = a.exam_hall_id?.exam_id || {};
+          const hall = a.exam_hall_id?.hall_id || {};
+          const subject = exam.subject_id || {};
+          const building = hall.building_id || {};
+          
+          return `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 capitalize">${a.role || 'invigilator'}</span>
+                <span class="text-sm text-gray-500">${formatDate(exam.exam_date)}</span>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900">${hall.hall_name || 'Hall'}</h3>
+              <p class="text-sm text-gray-500 mt-1">Building: ${building.building_name || '-'}</p>
+              <div class="mt-4 flex items-center text-sm text-gray-600">
+                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                ${exam.start_time || '-'} - ${exam.end_time || '-'}
+              </div>
+              <p class="text-xs text-gray-400 mt-2">Subject: ${subject.subject_name || '-'}</p>
+              <p class="text-xs text-gray-400">Code: ${subject.subject_code || '-'}</p>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        document.getElementById('hallsLoading').classList.add('hidden');
+        showToast(err.message, 'error');
+        console.error('Load halls error:', err);
+      }
+    }
+
+    async function loadAttendanceDropdown() {
+      const select = document.getElementById('attendanceHallSelect');
+      select.innerHTML = '<option value="">-- Select an exam hall --</option>';
+      try {
+        // FIXED: Use /my-assignments instead of /supervisor-assignments
+        const data = await api.get('/supervisor-assignments/my-assignments');
+        const assignments = data.data.assignments || [];
+        assignments.forEach(a => {
+          const examHallId = a.exam_hall_id?._id || '';
+          const hallName = a.exam_hall_id?.hall_id?.hall_name || 'Unknown Hall';
+          const examDate = formatDate(a.exam_hall_id?.exam_id?.exam_date);
+          const option = document.createElement('option');
+          option.value = examHallId;
+          option.textContent = `${hallName} - ${examDate}`;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+        console.error('Load attendance dropdown error:', err);
+      }
+    }
+
+    async function loadAttendance() {
+  const examHallId = document.getElementById('attendanceHallSelect').value;
+  if (!examHallId) {
+    document.getElementById('attendanceList').innerHTML = '';
+    return;
+  }
+  document.getElementById('attendanceLoading').classList.remove('hidden');
+  document.getElementById('attendanceList').innerHTML = '';
+  document.getElementById('attendanceEmpty').classList.add('hidden');
+  try {
+    const ehData = await api.get(`/exam-halls/${examHallId}`);
+    // FIXED: The response is { success: true, data: { exam_id: {...}, hall_id: {...} } }
+    // So ehData.data is the examHall object directly
+    const examId = ehData.data?.exam_id?._id;
+    if (!examId) throw new Error('Exam not found for this hall');
+
+    const saData = await api.get(`/seat-assignments?exam_id=${examId}`);
+    const assignments = saData.data.assignments || [];
+    document.getElementById('attendanceLoading').classList.add('hidden');
+    if (assignments.length === 0) {
+      document.getElementById('attendanceEmpty').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('attendanceList').innerHTML = `
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">University #</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hall</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Seat</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          ${assignments.map(a => `
+            <tr class="table-row">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${a.student_id?.full_name || '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${a.student_id?.university_number || '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${a.seat_id?.hall_id?.hall_name || '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${a.seat_id?.seat_label || '-'}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span id="status-${a._id}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  a.attendance_status === 'present' ? 'bg-green-100 text-green-800' :
+                  a.attendance_status === 'absent' ? 'bg-red-100 text-red-800' :
+                  a.attendance_status === 'late' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-gray-100 text-gray-800'
+                }">${a.attendance_status}</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                <button onclick="updateStatus('${a._id}', 'present')" class="text-green-600 hover:text-green-900">Present</button>
+                <button onclick="updateStatus('${a._id}', 'absent')" class="text-red-600 hover:text-red-900">Absent</button>
+                <button onclick="updateStatus('${a._id}', 'late')" class="text-yellow-600 hover:text-yellow-900">Late</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    document.getElementById('attendanceLoading').classList.add('hidden');
+    showToast(err.message, 'error');
+    console.error('Load attendance error:', err);
+  }
+}
+
+    async function updateStatus(id, status) {
+      try {
+        await api.patch(`/seat-assignments/${id}`, { attendance_status: status, check_in_time: new Date().toISOString() });
+        const badge = document.getElementById(`status-${id}`);
+        if (badge) {
+          badge.textContent = status;
+          badge.className = `px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            status === 'present' ? 'bg-green-100 text-green-800' :
+            status === 'absent' ? 'bg-red-100 text-red-800' :
+            'bg-yellow-100 text-yellow-800'
+          }`;
+        }
+        showToast(`Marked as ${status}`);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    showTab('halls');
+  </script>
+</body>
+</html>
