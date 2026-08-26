@@ -1,0 +1,26 @@
+# Dependencies
+backend/node_modules
+frontend/node_modules
+
+# Environment
+backend/.env
+backend/.env.test
+frontend/.env
+frontend/.env.test
+
+# Logs
+backend/logs
+*.log
+npm-debug.log*
+
+# Build / generated
+frontend/dist
+frontend/build
+
+# Coverage (if you add tests later)
+coverage
+*.lcov
+
+# OS files
+.DS_Store
+Thumbs.db
