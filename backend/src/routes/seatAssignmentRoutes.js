@@ -10,7 +10,13 @@ router
   .post(authAdmin, validate(seatAssignmentValidation.createSeatAssignment), seatAssignmentController.createSeatAssignment)
   .get(authAny, validate(seatAssignmentValidation.getSeatAssignments), seatAssignmentController.getSeatAssignments);
 
-// Student can view their own assignments — now uses dedicated controller
+router.post(
+  '/bulk',
+  authAdmin,
+  validate(seatAssignmentValidation.bulkCreateSeatAssignment),
+  seatAssignmentController.bulkCreateSeatAssignments
+);
+
 router.get('/my-assignments', authStudent, seatAssignmentController.getMySeatAssignments);
 
 router

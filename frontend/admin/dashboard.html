@@ -10,7 +10,6 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="flex h-screen">
-    <!-- Sidebar -->
     <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
       <div class="p-6 border-b">
         <span class="text-xl font-bold text-gray-900">ExamSeating</span>
@@ -28,6 +27,7 @@
         <button onclick="navigate('halls')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Halls</button>
         <button onclick="navigate('supervisors')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Supervisors</button>
         <button onclick="navigate('seat-assignments')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Seat Assignments</button>
+        <button onclick="navigate('proposals')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancellation Proposals</button>
       </nav>
       <div class="p-4 border-t">
         <div class="flex items-center justify-between">
@@ -37,7 +37,6 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 overflow-y-auto">
       <div class="p-8">
         <div id="page-header" class="mb-8">
@@ -49,7 +48,6 @@
     </main>
   </div>
 
-  <!-- Modal -->
   <div id="modal" class="fixed inset-0 z-50 hidden">
     <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
@@ -77,7 +75,6 @@
     document.getElementById('userName').textContent = user.full_name || 'Admin';
 
     let currentView = 'dashboard';
-    let currentData = [];
 
     function navigate(view) {
       currentView = view;
@@ -104,6 +101,7 @@
         case 'halls': title.textContent='Halls'; desc.textContent='Examination venues'; renderCrud('halls', 'hall'); break;
         case 'supervisors': title.textContent='Supervisors'; desc.textContent='Examination staff'; renderCrud('supervisors', 'supervisor'); break;
         case 'seat-assignments': title.textContent='Seat Assignments'; desc.textContent='Manual seat allocation'; renderSeatAssignments(); break;
+        case 'proposals': title.textContent='Cancellation Proposals'; desc.textContent='Supervisor cancellation requests'; renderProposals(); break;
       }
     }
 
@@ -140,18 +138,62 @@
       }
     }
 
+    async function renderProposals() {
+  const area = document.getElementById('content-area');
+  try {
+    const data = await api.get('/cancellation-proposals');
+    const items = data.data.proposals || [];
+    area.innerHTML = `
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supervisor</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exam</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hall</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            ${items.map(p => {
+              const exam = p.exam_hall_id?.exam_id || {};
+              const hall = p.exam_hall_id?.hall_id || {};
+              const subject = exam.subject_id || {};
+              return '<tr class="table-row">' +
+                '<td class="px-6 py-4 text-sm text-gray-900">' + (p.supervisor_id?.full_name || '-') + '</td>' +
+                '<td class="px-6 py-4 text-sm text-gray-900">' + (subject.subject_name || '-') + ' (' + formatDate(exam.exam_date) + ')</td>' +
+                '<td class="px-6 py-4 text-sm text-gray-900">' + (hall.hall_name || '-') + '</td>' +
+                '<td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="' + p.reason + '">' + p.reason + '</td>' +
+                '<td class="px-6 py-4 text-sm"><span class="px-2 py-1 rounded-full text-xs font-medium ' + (p.status==='pending'?'bg-yellow-100 text-yellow-700':p.status==='approved'?'bg-green-100 text-green-700':'bg-red-100 text-red-700') + '">' + p.status + '</span></td>' +
+                '<td class="px-6 py-4 text-right text-sm font-medium space-x-2">' +
+                  (p.status === 'pending' ? 
+                    '<button onclick="openApproveProposalModal(\'' + p._id + '\', \'' + (p.supervisor_id?.full_name || '') + '\', \'' + (hall.hall_name || '') + '\')" class="text-green-600 hover:text-green-900 font-medium">Approve</button>' +
+                    '<button onclick="openDeclineProposalModal(\'' + p._id + '\')" class="text-red-600 hover:text-red-900 font-medium">Decline</button>'
+                    : '<span class="text-gray-400 text-xs">Resolved</span>'
+                  ) +
+                '</td>' +
+              '</tr>';
+            }).join('')}
+          </tbody>
+        </table>
+        ${items.length === 0 ? '<div class="text-center py-8 text-gray-500">No proposals found</div>' : ''}
+      </div>
+    `;
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
     async function renderCrud(endpoint, type) {
       const area = document.getElementById('content-area');
       try {
         const data = await api.get(`/${endpoint}`);
-        // FIXED: Handle both direct arrays and paginated objects
         let items = [];
         if (Array.isArray(data.data)) {
           items = data.data;
         } else {
           items = data.data[type + 's'] || data.data[type + 'Types'] || data.data.assignments || data.data.enrollments || [];
         }
-        currentData = items;
         let fields = getFields(type);
         area.innerHTML = `
           <div class="mb-4 flex justify-between items-center">
@@ -193,7 +235,6 @@
           api.get('/exams'), api.get('/subjects'), api.get('/exam-types')
         ]);
         const items = exams.data.exams || [];
-        currentData = items;
         area.innerHTML = `
           <div class="mb-4 flex justify-between items-center">
             <button onclick="openCreateExamModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Schedule Exam</button>
@@ -201,7 +242,7 @@
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead>
-              <tbody class="divide-y divide-gray-200">${items.map(item => `<tr class="table-row"><td class="px-6 py-4 text-sm text-gray-900">${item.subject_id?.subject_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${item.exam_type_id?.type_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${formatDate(item.exam_date)}</td><td class="px-6 py-4 text-sm text-gray-900">${item.start_time} - ${item.end_time}</td><td class="px-6 py-4 text-sm"><span class="px-2 py-1 rounded-full text-xs font-medium ${item.status==='scheduled'?'bg-blue-100 text-blue-700':item.status==='completed'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-700'}">${item.status}</span></td><td class="px-6 py-4 text-right text-sm font-medium space-x-2"><button onclick="openExamDetailsModal('${item._id}')" class="text-blue-600 hover:text-blue-900">Details</button><button onclick="openAutoAssignModal('${item._id}')" class="bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700">Auto Assign</button><button onclick="deleteItem('exams', '${item._id}')" class="text-red-600 hover:text-red-900">Delete</button></td></tr>`).join('')}</tbody>
+              <tbody class="divide-y divide-gray-200">${items.map(item => `<tr class="table-row"><td class="px-6 py-4 text-sm text-gray-900">${item.subject_id?.subject_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${item.exam_type_id?.type_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${formatDate(item.exam_date)}</td><td class="px-6 py-4 text-sm text-gray-900">${item.start_time} - ${item.end_time}</td><td class="px-6 py-4 text-sm"><span class="px-2 py-1 rounded-full text-xs font-medium ${item.status==='scheduled'?'bg-blue-100 text-blue-700':item.status==='completed'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-700'}">${item.status}</span></td><td class="px-6 py-4 text-right text-sm font-medium space-x-2"><button onclick="openExamDetailsModal('${item._id}')" class="text-blue-600 hover:text-blue-900">Details</button><button onclick="deleteItem('exams', '${item._id}')" class="text-red-600 hover:text-red-900">Delete</button></td></tr>`).join('')}</tbody>
             </table>
           </div>
         `;
@@ -227,8 +268,8 @@
       } catch(e) { showToast(e.message, 'error'); }
     }
 
-    // ─── DROPDOWN HELPERS ───
-    async function populateSelect(selectId, endpoint, labelField, valueField = '_id') {
+    async function populateSelect(selectId, endpoint, labelField, valueField) {
+      valueField = valueField || '_id';
       const select = document.getElementById(selectId);
       if (!select) return;
       select.innerHTML = '<option value="">Loading...</option>';
@@ -242,13 +283,14 @@
           items = key ? res.data[key] : [];
         }
         select.innerHTML = '<option value="">-- Select --</option>' +
-          items.map(item => `<option value="${item[valueField]}">${item[labelField] || item.name || item._id}</option>`).join('');
+          items.map(item => '<option value="' + item[valueField] + '">' + (item[labelField] || item.name || item._id) + '</option>').join('');
       } catch (e) {
         select.innerHTML = '<option value="">Failed to load</option>';
       }
     }
 
-    async function populateMultiSelect(selectId, endpoint, labelField, valueField = '_id') {
+    async function populateMultiSelect(selectId, endpoint, labelField, valueField) {
+      valueField = valueField || '_id';
       const select = document.getElementById(selectId);
       if (!select) return;
       select.innerHTML = '';
@@ -277,33 +319,33 @@
       document.getElementById('modal-body').innerHTML = html;
       document.getElementById('modal').classList.remove('hidden');
       document.getElementById('modal-footer').style.display = 'flex';
-      document.getElementById('modal-save').onclick = async () => {
+      document.getElementById('modal-save').onclick = async function() {
         try { await onSave(); closeModal(); renderView(); showToast('Saved successfully'); }
         catch(err) { showToast(err.message || 'Failed to save', 'error'); }
       };
     }
 
-    function closeModal() { 
-      document.getElementById('modal').classList.add('hidden'); 
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
       document.getElementById('modal-footer').style.display = 'flex';
     }
 
     function openCreateModal(type) {
       const forms = {
-        student: `<div class="space-y-4"><input id="f-full_name" placeholder="Full Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-university_number" placeholder="University Number" class="w-full px-4 py-2 border rounded-lg"><input id="f-email" type="email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg"><input id="f-password" type="password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg"><input id="f-current_level" type="number" placeholder="Current Level" class="w-full px-4 py-2 border rounded-lg"><input id="f-phone" placeholder="Phone" class="w-full px-4 py-2 border rounded-lg"></div>`,
-        semester: `<div class="space-y-4"><input id="f-name" placeholder="Name (e.g. Fall 2026)" class="w-full px-4 py-2 border rounded-lg"><input id="f-academic_year" placeholder="Academic Year" class="w-full px-4 py-2 border rounded-lg"><input id="f-start_date" type="date" class="w-full px-4 py-2 border rounded-lg"><input id="f-end_date" type="date" class="w-full px-4 py-2 border rounded-lg"></div>`,
-        subject: `<div class="space-y-4"><input id="f-subject_code" placeholder="Subject Code" class="w-full px-4 py-2 border rounded-lg"><input id="f-subject_name" placeholder="Subject Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-credit_hours" type="number" placeholder="Credit Hours" class="w-full px-4 py-2 border rounded-lg"><input id="f-level_year" type="number" placeholder="Level Year" class="w-full px-4 py-2 border rounded-lg"><select id="f-semester_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Semester --</option></select></div>`,
-        enrollment: `<div class="space-y-4"><select id="f-student_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Student --</option></select><select id="f-subject_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Subject --</option></select><label class="flex items-center"><input id="f-is_retake" type="checkbox" class="mr-2"> Is Retake</label></div>`,
-        examType: `<div class="space-y-4"><select id="f-type_name" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="midterm">Midterm</option><option value="final">Final</option><option value="quiz">Quiz</option><option value="practical">Practical</option></select></div>`,
-        building: `<div class="space-y-4"><input id="f-building_name" placeholder="Building Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-location" placeholder="Location" class="w-full px-4 py-2 border rounded-lg"></div>`,
-        hall: `<div class="space-y-4"><select id="f-building_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Building --</option></select><input id="f-hall_name" placeholder="Hall Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-capacity" type="number" placeholder="Capacity" class="w-full px-4 py-2 border rounded-lg"><input id="f-rows_count" type="number" placeholder="Rows" class="w-full px-4 py-2 border rounded-lg"><input id="f-columns_count" type="number" placeholder="Columns" class="w-full px-4 py-2 border rounded-lg"></div>`,
-        supervisor: `<div class="space-y-4"><input id="f-full_name" placeholder="Full Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-email" type="email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg"><input id="f-phone" placeholder="Phone" class="w-full px-4 py-2 border rounded-lg"><input id="f-password" type="password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg"></div>`,
+        student: '<div class="space-y-4"><input id="f-full_name" placeholder="Full Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-university_number" placeholder="University Number" class="w-full px-4 py-2 border rounded-lg"><input id="f-email" type="email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg"><input id="f-password" type="password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg"><input id="f-current_level" type="number" placeholder="Current Level" class="w-full px-4 py-2 border rounded-lg"><input id="f-phone" placeholder="Phone" class="w-full px-4 py-2 border rounded-lg"></div>',
+        semester: '<div class="space-y-4"><input id="f-name" placeholder="Name (e.g. Fall 2026)" class="w-full px-4 py-2 border rounded-lg"><input id="f-academic_year" placeholder="Academic Year" class="w-full px-4 py-2 border rounded-lg"><input id="f-start_date" type="date" class="w-full px-4 py-2 border rounded-lg"><input id="f-end_date" type="date" class="w-full px-4 py-2 border rounded-lg"></div>',
+        subject: '<div class="space-y-4"><input id="f-subject_code" placeholder="Subject Code" class="w-full px-4 py-2 border rounded-lg"><input id="f-subject_name" placeholder="Subject Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-credit_hours" type="number" placeholder="Credit Hours" class="w-full px-4 py-2 border rounded-lg"><input id="f-level_year" type="number" placeholder="Level Year" class="w-full px-4 py-2 border rounded-lg"><select id="f-semester_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Semester --</option></select></div>',
+        enrollment: '<div class="space-y-4"><select id="f-student_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Student --</option></select><select id="f-subject_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Subject --</option></select><label class="flex items-center"><input id="f-is_retake" type="checkbox" class="mr-2"> Is Retake</label></div>',
+        examType: '<div class="space-y-4"><select id="f-type_name" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="midterm">Midterm</option><option value="final">Final</option><option value="quiz">Quiz</option><option value="practical">Practical</option></select></div>',
+        building: '<div class="space-y-4"><input id="f-building_name" placeholder="Building Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-location" placeholder="Location" class="w-full px-4 py-2 border rounded-lg"></div>',
+        hall: '<div class="space-y-4"><select id="f-building_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Building --</option></select><input id="f-hall_name" placeholder="Hall Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-capacity" type="number" placeholder="Capacity" class="w-full px-4 py-2 border rounded-lg"><input id="f-rows_count" type="number" placeholder="Rows" class="w-full px-4 py-2 border rounded-lg"><input id="f-columns_count" type="number" placeholder="Columns" class="w-full px-4 py-2 border rounded-lg"></div>',
+        supervisor: '<div class="space-y-4"><input id="f-full_name" placeholder="Full Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-email" type="email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg"><input id="f-phone" placeholder="Phone" class="w-full px-4 py-2 border rounded-lg"><input id="f-password" type="password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg"></div>',
       };
 
-      openModal(`Create ${type}`, forms[type], async () => {
+      openModal('Create ' + type, forms[type], async function() {
         const body = {};
         const missing = [];
-        document.querySelectorAll('#modal-body input, #modal-body select').forEach(el => {
+        document.querySelectorAll('#modal-body input, #modal-body select').forEach(function(el) {
           const field = el.id.replace('f-', '');
           if (el.type === 'checkbox') {
             body[field] = el.checked;
@@ -320,12 +362,11 @@
         });
 
         if (missing.length > 0) {
-          throw new Error(`Please fill in: ${missing.join(', ')}`);
+          throw new Error('Please fill in: ' + missing.join(', '));
         }
 
-        console.log('Submitting body:', body);
         const endpoint = type === 'examType' ? 'exam-types' : type + 's';
-        await api.post(`/${endpoint}`, body);
+        await api.post('/' + endpoint, body);
       });
 
       if (type === 'subject') populateSelect('f-semester_id', '/semesters', 'name');
@@ -336,78 +377,124 @@
       if (type === 'hall') populateSelect('f-building_id', '/buildings', 'building_name');
     }
 
-    function openCreateExamModal() {
-      openModal('Schedule Exam', `<div class="space-y-4"><select id="f-subject_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Subject --</option></select><select id="f-exam_type_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Exam Type --</option></select><input id="f-exam_date" type="date" class="w-full px-4 py-2 border rounded-lg"><input id="f-start_time" placeholder="Start Time (HH:MM)" class="w-full px-4 py-2 border rounded-lg"><input id="f-end_time" placeholder="End Time (HH:MM)" class="w-full px-4 py-2 border rounded-lg"></div>`, async () => {
-        await api.post('/exams', {
-          subject_id: document.getElementById('f-subject_id').value,
-          exam_type_id: document.getElementById('f-exam_type_id').value,
-          exam_date: document.getElementById('f-exam_date').value,
-          start_time: document.getElementById('f-start_time').value,
-          end_time: document.getElementById('f-end_time').value,
-        });
+function openCreateExamModal() {
+  openModal('Schedule Exam', 
+    '<div class="space-y-4">' +
+      '<select id="f-subject_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Subject --</option></select>' +
+      '<select id="f-exam_type_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Exam Type --</option></select>' +
+      '<input id="f-exam_date" type="date" class="w-full px-4 py-2 border rounded-lg">' +
+      '<input id="f-start_time" placeholder="Start Time (HH:MM)" class="w-full px-4 py-2 border rounded-lg">' +
+      '<input id="f-end_time" placeholder="End Time (HH:MM)" class="w-full px-4 py-2 border rounded-lg">' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-24"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div>' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-24"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div>' +
+      '<div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700">Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div>' +
+    '</div>', 
+    async function() {
+      const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
+      const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
+      
+      if (hallIds.length === 0) throw new Error('Please select at least one hall');
+      if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
+      if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
+
+      const headSupervisors = [];
+      for (let i = 0; i < hallIds.length; i++) {
+        const hallId = hallIds[i];
+        const select = document.getElementById('head-for-' + hallId);
+        const headId = select ? select.value : '';
+        if (!headId) throw new Error('Please select a head supervisor for all halls');
+        if (!supervisorIds.includes(headId)) throw new Error('Head supervisor must be from the selected pool');
+        headSupervisors.push({ hall_id: hallId, supervisor_id: headId });
+      }
+
+      const headIds = headSupervisors.map(function(h) { return h.supervisor_id; });
+      if (new Set(headIds).size !== headIds.length) {
+        throw new Error('Each hall must have a different head supervisor');
+      }
+
+      await api.post('/exams', {
+        subject_id: document.getElementById('f-subject_id').value,
+        exam_type_id: document.getElementById('f-exam_type_id').value,
+        exam_date: document.getElementById('f-exam_date').value,
+        start_time: document.getElementById('f-start_time').value,
+        end_time: document.getElementById('f-end_time').value,
+        hall_ids: hallIds,
+        supervisor_ids: supervisorIds,
+        head_supervisors: headSupervisors,
       });
-      populateSelect('f-subject_id', '/subjects', 'subject_name');
-      populateSelect('f-exam_type_id', '/exam-types', 'type_name');
     }
+  );
+  
+  populateSelect('f-subject_id', '/subjects', 'subject_name');
+  populateSelect('f-exam_type_id', '/exam-types', 'type_name');
+  populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
+  populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
+  
+  setTimeout(function() {
+    const updateHeadSection = function() {
+      const hallSelect = document.getElementById('f-hall_ids');
+      const supSelect = document.getElementById('f-supervisor_ids');
+      const section = document.getElementById('head-supervisors-section');
+      const list = document.getElementById('head-supervisors-list');
+      
+      const halls = Array.from(hallSelect.selectedOptions);
+      const supervisors = Array.from(supSelect.selectedOptions);
+      
+      if (halls.length === 0 || supervisors.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+      
+      section.classList.remove('hidden');
+      list.innerHTML = halls.map(function(hall) {
+        return '<div class="flex items-center space-x-3"><span class="text-sm font-medium text-gray-700 w-32 truncate">' + hall.text + '</span><select id="head-for-' + hall.value + '" class="flex-1 px-3 py-2 border rounded-lg bg-white text-sm"><option value="">-- Select Head --</option>' + supervisors.map(function(sup) { return '<option value="' + sup.value + '">' + sup.text + '</option>'; }).join('') + '</select></div>';
+      }).join('');
+    };
+
+    const hallEl = document.getElementById('f-hall_ids');
+    const supEl = document.getElementById('f-supervisor_ids');
+    if (hallEl) hallEl.addEventListener('change', updateHeadSection);
+    if (supEl) supEl.addEventListener('change', updateHeadSection);
+  }, 100);
+}
 
     function openAutoAssignModal(examId) {
-      openModal('Auto Assign Exam', `
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Select Halls</label>
-            <select id="f-hall_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-32">
-              <option value="">Loading halls...</option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Select Supervisor Pool</label>
-            <select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-32">
-              <option value="">Loading supervisors...</option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-          </div>
-          <div id="head-supervisors-section" class="space-y-3 hidden">
-            <label class="block text-sm font-medium text-gray-700">Head Supervisors</label>
-            <p class="text-xs text-gray-500">Select one head supervisor for each hall</p>
-            <div id="head-supervisors-list" class="space-y-2"></div>
-          </div>
-        </div>
-      `, async () => {
-        const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(o => o.value).filter(Boolean);
-        const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(o => o.value).filter(Boolean);
+      openModal('Auto Assign Exam', '<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-32"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-32"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div><div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700">Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div></div>', async function() {
+        const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
+        const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
         
         if (hallIds.length === 0) throw new Error('Please select at least one hall');
         if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
         if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
 
         const headSupervisors = [];
-        for (const hallId of hallIds) {
-          const select = document.getElementById(`head-for-${hallId}`);
-          const headId = select?.value;
+        for (let i = 0; i < hallIds.length; i++) {
+          const hallId = hallIds[i];
+          const select = document.getElementById('head-for-' + hallId);
+          const headId = select ? select.value : '';
           if (!headId) throw new Error('Please select a head supervisor for all halls');
           if (!supervisorIds.includes(headId)) throw new Error('Head supervisor must be from the selected pool');
           headSupervisors.push({ hall_id: hallId, supervisor_id: headId });
         }
 
-        const headIds = headSupervisors.map(h => h.supervisor_id);
+        const headIds = headSupervisors.map(function(h) { return h.supervisor_id; });
         if (new Set(headIds).size !== headIds.length) {
           throw new Error('Each hall must have a different head supervisor');
         }
 
-        await api.post(`/exams/${examId}/assign-halls`, { hall_ids: hallIds });
+        await api.post('/exams/' + examId + '/assign-halls', { hall_ids: hallIds });
         
         try {
-          await api.post(`/exams/${examId}/auto-assign-seats`, { hall_ids: hallIds });
+          await api.post('/exams/' + examId + '/auto-assign-seats', { hall_ids: hallIds });
         } catch (err) {
-          if (err.message.includes('already assigned') || err.message.includes('already have seats') || err.message.includes('No unassigned')) {
+          if (err.message && (err.message.includes('already assigned') || err.message.includes('already have seats') || err.message.includes('No unassigned'))) {
             showToast('Note: All students already have seats', 'error');
           } else {
             throw err;
           }
         }
         
-        await api.post(`/exams/${examId}/auto-assign-supervisors`, { 
+        await api.post('/exams/' + examId + '/auto-assign-supervisors', { 
           supervisor_ids: supervisorIds, 
           head_supervisors: headSupervisors 
         });
@@ -418,48 +505,175 @@
       populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
       populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
       
-      const updateHeadSection = () => {
-        const hallSelect = document.getElementById('f-hall_ids');
-        const supSelect = document.getElementById('f-supervisor_ids');
-        const section = document.getElementById('head-supervisors-section');
-        const list = document.getElementById('head-supervisors-list');
-        
-        const halls = Array.from(hallSelect.selectedOptions);
-        const supervisors = Array.from(supSelect.selectedOptions);
-        
-        if (halls.length === 0 || supervisors.length === 0) {
-          section.classList.add('hidden');
+      setTimeout(function() {
+        const updateHeadSection = function() {
+          const hallSelect = document.getElementById('f-hall_ids');
+          const supSelect = document.getElementById('f-supervisor_ids');
+          const section = document.getElementById('head-supervisors-section');
+          const list = document.getElementById('head-supervisors-list');
+          
+          const halls = Array.from(hallSelect.selectedOptions);
+          const supervisors = Array.from(supSelect.selectedOptions);
+          
+          if (halls.length === 0 || supervisors.length === 0) {
+            section.classList.add('hidden');
+            return;
+          }
+          
+          section.classList.remove('hidden');
+          list.innerHTML = halls.map(function(hall) {
+            return '<div class="flex items-center space-x-3"><span class="text-sm font-medium text-gray-700 w-32 truncate">' + hall.text + '</span><select id="head-for-' + hall.value + '" class="flex-1 px-3 py-2 border rounded-lg bg-white text-sm"><option value="">-- Select Head --</option>' + supervisors.map(function(sup) { return '<option value="' + sup.value + '">' + sup.text + '</option>'; }).join('') + '</select></div>';
+          }).join('');
+        };
+
+        const hallEl = document.getElementById('f-hall_ids');
+        const supEl = document.getElementById('f-supervisor_ids');
+        if (hallEl) hallEl.addEventListener('change', updateHeadSection);
+        if (supEl) supEl.addEventListener('change', updateHeadSection);
+      }, 100);
+    }
+
+function openCreateSeatAssignmentModal() {
+  var selectedStudentIds = [];
+  
+  openModal('Bulk Seat Assignment', 
+    '<div class="space-y-5">' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Exam</label><select id="f-exam_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Exam --</option></select></div>' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Hall</label><select id="f-hall_id" class="w-full px-4 py-2 border rounded-lg bg-white" disabled><option value="">-- Select exam first --</option></select><p id="seat-count" class="text-xs text-gray-500 mt-1 hidden"></p></div>' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-2">Select Students <span id="student-counter" class="text-xs font-normal text-gray-500">(0 selected)</span></label><div id="student-grid" class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto p-1"><p class="text-sm text-gray-500 col-span-2">Loading students...</p></div></div>' +
+    '</div>', 
+    async function() {
+      const examId = document.getElementById('f-exam_id').value;
+      const hallId = document.getElementById('f-hall_id').value;
+      
+      if (!examId) throw new Error('Please select an exam');
+      if (!hallId) throw new Error('Please select a hall');
+      if (selectedStudentIds.length === 0) throw new Error('Please select at least one student');
+      
+      const res = await api.post('/seat-assignments/bulk', {
+        student_ids: selectedStudentIds,
+        exam_id: examId,
+        hall_id: hallId,
+      });
+      
+      const data = res.data;
+      var msg = 'Assigned ' + data.assignedCount + ' students';
+      if (data.skippedCount > 0) msg += ' (' + data.skippedCount + ' already had seats)';
+      showToast(msg);
+    }
+  );
+  
+  // Load exams
+  const examSelect = document.getElementById('f-exam_id');
+  api.get('/exams').then(function(res) {
+    const exams = res.data.exams || [];
+    examSelect.innerHTML = '<option value="">-- Select Exam --</option>' +
+      exams.map(function(exam) {
+        var subject = exam.subject_id ? exam.subject_id.subject_name : 'Unknown';
+        var type = exam.exam_type_id ? exam.exam_type_id.type_name : 'Exam';
+        var date = formatDate(exam.exam_date);
+        return '<option value="' + exam._id + '">' + subject + ' - ' + type + ' (' + date + ')</option>';
+      }).join('');
+  }).catch(function() {
+    examSelect.innerHTML = '<option value="">Failed to load exams</option>';
+  });
+  
+  // Load students as clickable cards
+  const studentGrid = document.getElementById('student-grid');
+  api.get('/students?limit=1000').then(function(res) {
+    const students = (res.data.students || []).sort(function(a, b) { return a.current_level - b.current_level || a.full_name.localeCompare(b.full_name); });
+    if (students.length === 0) {
+      studentGrid.innerHTML = '<p class="text-sm text-gray-500 col-span-2">No students found</p>';
+      return;
+    }
+    
+    studentGrid.innerHTML = students.map(function(s) {
+      return '<div class="student-card cursor-pointer border-2 border-gray-200 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50 transition select-none" data-id="' + s._id + '">' +
+        '<div class="flex items-center space-x-3">' +
+          '<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">' + (s.full_name ? s.full_name.charAt(0).toUpperCase() : '?') + '</div>' +
+          '<div class="min-w-0">' +
+            '<p class="text-sm font-medium text-gray-900 truncate">' + s.full_name + '</p>' +
+            '<p class="text-xs text-gray-500">' + s.university_number + ' • Level ' + s.current_level + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    
+    // Add click handlers
+    studentGrid.querySelectorAll('.student-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        if (selectedStudentIds.includes(id)) {
+          selectedStudentIds = selectedStudentIds.filter(function(sid) { return sid !== id; });
+          this.classList.remove('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-200');
+          this.classList.add('border-gray-200');
+        } else {
+          selectedStudentIds.push(id);
+          this.classList.remove('border-gray-200');
+          this.classList.add('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-200');
+        }
+        document.getElementById('student-counter').textContent = '(' + selectedStudentIds.length + ' selected)';
+      });
+    });
+  }).catch(function() {
+    studentGrid.innerHTML = '<p class="text-sm text-red-500 col-span-2">Failed to load students</p>';
+  });
+  
+  // When exam changes, load halls
+  examSelect.addEventListener('change', async function() {
+    const hallSelect = document.getElementById('f-hall_id');
+    const seatCountP = document.getElementById('seat-count');
+    const examId = this.value;
+    
+    if (!examId) {
+      hallSelect.innerHTML = '<option value="">-- Select exam first --</option>';
+      hallSelect.disabled = true;
+      seatCountP.classList.add('hidden');
+      return;
+    }
+    
+    hallSelect.innerHTML = '<option value="">Loading halls...</option>';
+    hallSelect.disabled = true;
+    
+    try {
+      const res = await api.get('/exams/' + examId + '/details');
+      const halls = res.data.halls || [];
+      
+      if (halls.length === 0) {
+        hallSelect.innerHTML = '<option value="">No halls assigned to this exam</option>';
+        return;
+      }
+      
+      hallSelect.innerHTML = '<option value="">-- Select Hall --</option>' +
+        halls.map(function(h) {
+          var hallName = h.hall_id ? h.hall_id.hall_name : 'Unknown';
+          var capacity = h.hall_id ? h.hall_id.capacity : '?';
+          return '<option value="' + h.hall_id._id + '" data-capacity="' + capacity + '">' + hallName + ' (Capacity: ' + capacity + ')</option>';
+        }).join('');
+      hallSelect.disabled = false;
+      
+      // Show seat availability when hall changes
+      hallSelect.addEventListener('change', async function() {
+        const hallId = this.value;
+        if (!hallId) {
+          seatCountP.classList.add('hidden');
           return;
         }
-        
-        section.classList.remove('hidden');
-        list.innerHTML = halls.map(hall => `
-          <div class="flex items-center space-x-3">
-            <span class="text-sm font-medium text-gray-700 w-32 truncate">${hall.text}</span>
-            <select id="head-for-${hall.value}" class="flex-1 px-3 py-2 border rounded-lg bg-white text-sm">
-              <option value="">-- Select Head --</option>
-              ${supervisors.map(sup => `<option value="${sup.value}">${sup.text}</option>`).join('')}
-            </select>
-          </div>
-        `).join('');
-      };
-
-      document.getElementById('f-hall_ids').addEventListener('change', updateHeadSection);
-      document.getElementById('f-supervisor_ids').addEventListener('change', updateHeadSection);
-    }
-
-    function openCreateSeatAssignmentModal() {
-      openModal('Manual Seat Assignment', `<div class="space-y-4"><select id="f-student_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Student --</option></select><select id="f-exam_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Exam --</option></select><select id="f-seat_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Seat --</option></select></div>`, async () => {
-        await api.post('/seat-assignments', {
-          student_id: document.getElementById('f-student_id').value,
-          exam_id: document.getElementById('f-exam_id').value,
-          seat_id: document.getElementById('f-seat_id').value,
-        });
+        try {
+          const seatRes = await api.get('/seats?hall_id=' + hallId);
+          const totalSeats = (seatRes.data.seats || []).length;
+          seatCountP.textContent = 'Total seats in hall: ' + totalSeats;
+          seatCountP.classList.remove('hidden');
+        } catch(e) {
+          seatCountP.classList.add('hidden');
+        }
       });
-      populateSelect('f-student_id', '/students', 'full_name');
-      populateSelect('f-exam_id', '/exams', 'exam_date');
-      populateSelect('f-seat_id', '/seats', 'seat_label');
+      
+    } catch(e) {
+      hallSelect.innerHTML = '<option value="">Failed to load halls</option>';
     }
+  });
+}
 
     async function deleteItem(endpoint, id) {
       const warnings = {
@@ -470,15 +684,13 @@
         'seat-assignments': 'This will also delete related notifications.',
       };
       
-      const warning = warnings[endpoint] || '';
-      const msg = warning 
-        ? `Are you sure?\n\n${warning}\n\nThis action cannot be undone.` 
-        : 'Are you sure?';
+      var warning = warnings[endpoint] || '';
+      var msg = warning ? 'Are you sure?\n\n' + warning + '\n\nThis action cannot be undone.' : 'Are you sure?';
         
       if (!confirm(msg)) return;
       
       try { 
-        await api.delete(`/${endpoint}/${id}`); 
+        await api.delete('/' + endpoint + '/' + id); 
         renderView(); 
         showToast('Deleted successfully'); 
       }
@@ -489,96 +701,52 @@
 
     async function openExamDetailsModal(examId) {
       try {
-        const res = await api.get(`/exams/${examId}/details`);
-        const data = res.data;
-        const exam = data.exam;
-        const halls = data.halls || [];
-        const seats = data.seatAssignments || [];
-        const supervisors = data.supervisorAssignments || [];
+        var res = await api.get('/exams/' + examId + '/details');
+        var data = res.data;
+        var exam = data.exam;
+        var halls = data.halls || [];
+        var seats = data.seatAssignments || [];
+        var supervisors = data.supervisorAssignments || [];
 
-        const html = `
-          <div class="space-y-6">
-            <div class="bg-gray-50 rounded-lg p-4">
-              <h4 class="font-semibold text-gray-900 mb-2">Exam Information</h4>
-              <div class="grid grid-cols-2 gap-4 text-sm">
-                <div><span class="text-gray-500">Subject:</span> ${exam?.subject_id?.subject_name || '-'}</div>
-                <div><span class="text-gray-500">Type:</span> ${exam?.exam_type_id?.type_name || '-'}</div>
-                <div><span class="text-gray-500">Date:</span> ${formatDate(exam?.exam_date)}</div>
-                <div><span class="text-gray-500">Time:</span> ${exam?.start_time || '-'} - ${exam?.end_time || '-'}</div>
-                <div><span class="text-gray-500">Status:</span> <span class="px-2 py-0.5 rounded-full text-xs font-medium ${exam?.status==='scheduled'?'bg-blue-100 text-blue-700':exam?.status==='completed'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-700'}">${exam?.status || '-'}</span></div>
-              </div>
-            </div>
-
-            <div>
-              <h4 class="font-semibold text-gray-900 mb-2">Halls (${halls.length})</h4>
-              ${halls.length === 0 ? '<p class="text-sm text-gray-500">No halls assigned yet.</p>' : `
-                <div class="flex flex-wrap gap-2">
-                  ${halls.map(h => `<span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">${h.hall_id?.hall_name || 'Unknown'}</span>`).join('')}
-                </div>
-              `}
-            </div>
-
-            <div>
-              <h4 class="font-semibold text-gray-900 mb-2">Student Seat Assignments (${seats.length})</h4>
-              ${seats.length === 0 ? '<p class="text-sm text-gray-500">No students assigned yet.</p>' : `
-                <div class="max-h-48 overflow-y-auto border rounded-lg">
-                  <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Student</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">University #</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hall</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Seat</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                      ${seats.map(s => `
-                        <tr>
-                          <td class="px-4 py-2">${s.student_id?.full_name || '-'}</td>
-                          <td class="px-4 py-2 text-gray-500">${s.student_id?.university_number || '-'}</td>
-                          <td class="px-4 py-2 text-sm font-medium text-gray-700">${s.seat_id?.hall_id?.hall_name || '-'}</td>
-                          <td class="px-4 py-2 font-medium text-indigo-600">${s.seat_id?.seat_label || '-'}</td>
-                          <td class="px-4 py-2">
-                            <span class="px-2 py-0.5 rounded text-xs ${s.attendance_status==='present'?'bg-green-100 text-green-700':s.attendance_status==='absent'?'bg-red-100 text-red-700':'bg-gray-100 text-gray-700'}">${s.attendance_status}</span>
-                          </td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              `}
-            </div>
-
-            <div>
-              <h4 class="font-semibold text-gray-900 mb-2">Supervisor Assignments (${supervisors.length})</h4>
-              ${supervisors.length === 0 ? '<p class="text-sm text-gray-500">No supervisors assigned yet.</p>' : `
-                <div class="max-h-48 overflow-y-auto border rounded-lg">
-                  <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Supervisor</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Role</th>
-                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hall</th>
-                      </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                      ${supervisors.map(s => `
-                        <tr>
-                          <td class="px-4 py-2">${s.supervisor_id?.full_name || '-'}</td>
-                          <td class="px-4 py-2">
-                            <span class="px-2 py-0.5 rounded text-xs ${s.role==='head'?'bg-purple-100 text-purple-700':'bg-emerald-100 text-emerald-700'} font-medium capitalize">${s.role}</span>
-                          </td>
-                          <td class="px-4 py-2 text-gray-500">${s.exam_hall_id?.hall_id?.hall_name || '-'}</td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                </div>
-              `}
-            </div>
-          </div>
-        `;
+        var html = 
+          '<div class="space-y-6">' +
+            '<div class="bg-gray-50 rounded-lg p-4">' +
+              '<h4 class="font-semibold text-gray-900 mb-2">Exam Information</h4>' +
+              '<div class="grid grid-cols-2 gap-4 text-sm">' +
+                '<div><span class="text-gray-500">Subject:</span> ' + (exam && exam.subject_id ? exam.subject_id.subject_name : '-') + '</div>' +
+                '<div><span class="text-gray-500">Type:</span> ' + (exam && exam.exam_type_id ? exam.exam_type_id.type_name : '-') + '</div>' +
+                '<div><span class="text-gray-500">Date:</span> ' + formatDate(exam ? exam.exam_date : '') + '</div>' +
+                '<div><span class="text-gray-500">Time:</span> ' + (exam ? exam.start_time : '-') + ' - ' + (exam ? exam.end_time : '-') + '</div>' +
+                '<div><span class="text-gray-500">Status:</span> <span class="px-2 py-0.5 rounded-full text-xs font-medium ' + (exam && exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' : exam && exam.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') + '">' + (exam ? exam.status : '-') + '</span></div>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<h4 class="font-semibold text-gray-900 mb-2">Halls (' + halls.length + ')</h4>' +
+              (halls.length === 0 ? '<p class="text-sm text-gray-500">No halls assigned yet.</p>' : '<div class="flex flex-wrap gap-2">' + halls.map(function(h) { return '<span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">' + (h.hall_id ? h.hall_id.hall_name : 'Unknown') + '</span>'; }).join('') + '</div>') +
+            '</div>' +
+            '<div>' +
+              '<h4 class="font-semibold text-gray-900 mb-2">Student Seat Assignments (' + seats.length + ')</h4>' +
+              (seats.length === 0 ? '<p class="text-sm text-gray-500">No students assigned yet.</p>' : 
+                '<div class="max-h-48 overflow-y-auto border rounded-lg">' +
+                  '<table class="min-w-full divide-y divide-gray-200 text-sm">' +
+                    '<thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Student</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">University #</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hall</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Seat</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th></tr></thead>' +
+                    '<tbody class="divide-y divide-gray-200">' + seats.map(function(s) { return '<tr><td class="px-4 py-2">' + (s.student_id ? s.student_id.full_name : '-') + '</td><td class="px-4 py-2 text-gray-500">' + (s.student_id ? s.student_id.university_number : '-') + '</td><td class="px-4 py-2 text-sm font-medium text-gray-700">' + (s.seat_id && s.seat_id.hall_id ? s.seat_id.hall_id.hall_name : '-') + '</td><td class="px-4 py-2 font-medium text-indigo-600">' + (s.seat_id ? s.seat_id.seat_label : '-') + '</td><td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs ' + (s.attendance_status === 'present' ? 'bg-green-100 text-green-700' : s.attendance_status === 'absent' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') + '">' + s.attendance_status + '</span></td></tr>'; }).join('') + '</tbody>' +
+                  '</table>' +
+                '</div>'
+              ) +
+            '</div>' +
+            '<div>' +
+              '<h4 class="font-semibold text-gray-900 mb-2">Supervisor Assignments (' + supervisors.length + ')</h4>' +
+              (supervisors.length === 0 ? '<p class="text-sm text-gray-500">No supervisors assigned yet.</p>' : 
+                '<div class="max-h-48 overflow-y-auto border rounded-lg">' +
+                  '<table class="min-w-full divide-y divide-gray-200 text-sm">' +
+                    '<thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Supervisor</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Role</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hall</th></tr></thead>' +
+                    '<tbody class="divide-y divide-gray-200">' + supervisors.map(function(s) { return '<tr><td class="px-4 py-2">' + (s.supervisor_id ? s.supervisor_id.full_name : '-') + '</td><td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs ' + (s.role === 'head' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700') + ' font-medium capitalize">' + s.role + '</span></td><td class="px-4 py-2 text-gray-500">' + (s.exam_hall_id && s.exam_hall_id.hall_id ? s.exam_hall_id.hall_id.hall_name : '-') + '</td></tr>'; }).join('') + '</tbody>' +
+                  '</table>' +
+                '</div>'
+              ) +
+            '</div>' +
+          '</div>';
 
         document.getElementById('modal-title').textContent = 'Exam Details';
         document.getElementById('modal-body').innerHTML = html;
@@ -589,6 +757,53 @@
         console.error('Exam details error:', err);
       }
     }
+
+    function openApproveProposalModal(proposalId, supervisorName, hallName) {
+  openModal('Approve Cancellation Request',
+    '<div class="space-y-4">' +
+      '<p class="text-sm text-gray-600">You are approving the cancellation request from <strong>' + supervisorName + '</strong> for <strong>' + hallName + '</strong>.</p>' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Replacement Supervisor</label><select id="f-replacement_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">Loading supervisors...</option></select></div>' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Response to Supervisor (optional)</label><textarea id="f-admin_response" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>' +
+    '</div>',
+    async function() {
+      const replacementId = document.getElementById('f-replacement_id').value;
+      const response = document.getElementById('f-admin_response').value.trim();
+      if (!replacementId) throw new Error('Please select a replacement supervisor');
+      
+      await api.patch('/cancellation-proposals/' + proposalId + '/approve', {
+        replacement_supervisor_id: replacementId,
+        admin_response: response,
+      });
+      showToast('Request approved and replacement assigned');
+    }
+  );
+  
+  // Load supervisors
+  const select = document.getElementById('f-replacement_id');
+  api.get('/supervisors').then(function(res) {
+    const supervisors = res.data.supervisors || [];
+    select.innerHTML = '<option value="">-- Select Replacement --</option>' +
+      supervisors.map(function(s) { return '<option value="' + s._id + '">' + s.full_name + ' (' + s.email + ')</option>'; }).join('');
+  }).catch(function() {
+    select.innerHTML = '<option value="">Failed to load</option>';
+  });
+}
+
+function openDeclineProposalModal(proposalId) {
+  openModal('Decline Cancellation Request',
+    '<div class="space-y-4">' +
+      '<p class="text-sm text-gray-600">The supervisor will be notified that their request has been declined.</p>' +
+      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Reason for declining (optional)</label><textarea id="f-admin_response" rows="3" placeholder="Explain why the request is declined..." class="w-full px-4 py-2 border rounded-lg"></textarea></div>' +
+    '</div>',
+    async function() {
+      const response = document.getElementById('f-admin_response').value.trim();
+      await api.patch('/cancellation-proposals/' + proposalId + '/decline', {
+        admin_response: response,
+      });
+      showToast('Request declined');
+    }
+  );
+}
 
     renderView();
   </script>

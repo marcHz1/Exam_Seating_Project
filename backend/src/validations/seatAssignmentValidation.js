@@ -9,6 +9,14 @@ const createSeatAssignment = {
   }),
 };
 
+const bulkCreateSeatAssignment = {
+  body: Joi.object().keys({
+    student_ids: Joi.array().items(Joi.string().custom(objectId)).min(1).required(),
+    exam_id: Joi.string().custom(objectId).required(),
+    hall_id: Joi.string().custom(objectId).required(),
+  }),
+};
+
 const getSeatAssignments = {
   query: Joi.object().keys({
     student_id: Joi.string().custom(objectId),
@@ -44,6 +52,7 @@ const deleteSeatAssignment = {
 
 module.exports = {
   createSeatAssignment,
+  bulkCreateSeatAssignment,
   getSeatAssignments,
   getSeatAssignment,
   updateAttendance,

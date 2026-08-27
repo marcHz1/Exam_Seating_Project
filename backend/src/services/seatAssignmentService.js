@@ -1,6 +1,7 @@
 const SeatAssignment = require('../models/SeatAssignment');
 const Exam = require('../models/Exam');
 const Seat = require('../models/Seat');
+const ExamHall = require('../models/ExamHall');
 const Notification = require('../models/Notification');
 const ApiError = require('../utils/ApiError');
 
@@ -24,6 +25,57 @@ const createSeatAssignment = async (body) => {
   }
 
   return SeatAssignment.create(body);
+};
+
+const bulkCreateSeatAssignments = async (body) => {
+  const { student_ids, exam_id, hall_id } = body;
+
+  // Verify exam exists
+  const exam = await Exam.findById(exam_id);
+  if (!exam) throw ApiError.notFound('Exam not found');
+
+  // Verify hall is assigned to this exam
+  const examHall = await ExamHall.findOne({ exam_id, hall_id });
+  if (!examHall) throw ApiError.badRequest('Selected hall is not assigned to this exam');
+
+  // Find students already assigned to this exam
+  const existingAssignments = await SeatAssignment.find({
+    exam_id,
+    student_id: { $in: student_ids },
+  });
+  const alreadyAssignedStudentIds = existingAssignments.map(a => a.student_id.toString());
+  
+  // Filter out already assigned students
+  const newStudentIds = student_ids.filter(id => !alreadyAssignedStudentIds.includes(id));
+  if (newStudentIds.length === 0) {
+    throw ApiError.badRequest('All selected students are already assigned to this exam');
+  }
+
+  // Find seats in this hall NOT already assigned to this exam
+  const assignedSeatIds = await SeatAssignment.find({ exam_id }).distinct('seat_id');
+  const availableSeats = await Seat.find({
+    hall_id,
+    status: { $in: ['available', 'occupied'] },
+    _id: { $nin: assignedSeatIds },
+  }).sort({ row_number: 1, column_number: 1 });
+
+  if (availableSeats.length < newStudentIds.length) {
+    throw ApiError.badRequest(
+      `Not enough available seats in this hall. Need ${newStudentIds.length}, have ${availableSeats.length}`
+    );
+  }
+
+  // Create assignments
+  const assignments = newStudentIds.map((studentId, i) => ({
+    student_id: studentId,
+    exam_id,
+    seat_id: availableSeats[i]._id,
+    attendance_status: 'pending',
+    assigned_at: new Date(),
+  }));
+
+  const created = await SeatAssignment.insertMany(assignments);
+  return { created, skipped: alreadyAssignedStudentIds.length, totalRequested: student_ids.length };
 };
 
 const querySeatAssignments = async (filter, options) => {
@@ -81,6 +133,7 @@ const deleteSeatAssignmentById = async (id) => {
 
 module.exports = {
   createSeatAssignment,
+  bulkCreateSeatAssignments,
   querySeatAssignments,
   getSeatAssignmentById,
   updateAttendance,

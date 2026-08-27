@@ -2,6 +2,8 @@ const Exam = require('../models/Exam');
 const ExamHall = require('../models/ExamHall');
 const Hall = require('../models/Hall');
 const Seat = require('../models/Seat');
+const Student = require('../models/Student');
+const Subject = require('../models/Subject');
 const Enrollment = require('../models/Enrollment');
 const SeatAssignment = require('../models/SeatAssignment');
 const SupervisorAssignment = require('../models/SupervisorAssignment');
@@ -10,7 +12,149 @@ const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
 
 const createExam = async (body, adminId) => {
-  return Exam.create({ ...body, created_by_admin_id: adminId });
+  const { hall_ids, supervisor_ids, head_supervisors, ...examBody } = body;
+  
+  // 1. Create the exam
+  const exam = await Exam.create({ ...examBody, created_by_admin_id: adminId });
+  console.log('✅ Exam created:', exam._id, 'Subject:', exam.subject_id);
+  
+  // 2. If halls provided, auto-assign everything
+  if (hall_ids && hall_ids.length > 0) {
+    const uniqueHallIds = [...new Set(hall_ids)];
+    
+    // Create ExamHall records
+    const examHallDocs = uniqueHallIds.map(hallId => ({
+      exam_id: exam._id,
+      hall_id: hallId,
+    }));
+    await ExamHall.insertMany(examHallDocs);
+    console.log('🏛️ Halls assigned:', uniqueHallIds.length);
+    
+    // Get subject to check level_year
+    const subject = await Subject.findById(exam.subject_id);
+    if (!subject) throw ApiError.notFound('Subject not found');
+    console.log('📚 Subject:', subject.subject_name, 'level_year:', subject.level_year);
+    
+    // STRATEGY 1: Find students via active Enrollments for this subject
+    const enrollments = await Enrollment.find({
+      subject_id: exam.subject_id,
+      status: 'active',
+    }).populate('student_id');
+    
+    console.log('📋 Active enrollments found:', enrollments.length);
+    
+    let targetStudents = [];
+    
+    if (enrollments.length > 0) {
+      // Filter by matching year
+      targetStudents = enrollments
+        .filter(e => e.student_id && e.student_id.current_level === subject.level_year)
+        .map(e => e.student_id);
+      console.log('🎯 Students matching year via enrollments:', targetStudents.length);
+    }
+    
+    // STRATEGY 2 (Fallback): If no enrollments exist, find ALL students with matching current_level
+    if (targetStudents.length === 0) {
+      console.log('⚠️ No enrollments found. Falling back to all students with current_level =', subject.level_year);
+      targetStudents = await Student.find({ current_level: subject.level_year });
+      console.log('👥 Students found by level (fallback):', targetStudents.length);
+    }
+    
+    // Assign seats if we found students
+    if (targetStudents.length > 0) {
+      const availableSeats = await Seat.find({
+        hall_id: { $in: uniqueHallIds },
+        status: { $in: ['available', 'occupied'] },
+      }).sort({ hall_id: 1, row_number: 1, column_number: 1 });
+      
+      console.log('💺 Available seats:', availableSeats.length, 'Students:', targetStudents.length);
+      
+      if (availableSeats.length < targetStudents.length) {
+        throw ApiError.badRequest(
+          `Not enough seats. Need ${targetStudents.length}, have ${availableSeats.length}`
+        );
+      }
+      
+      const assignments = targetStudents.map((student, i) => ({
+        student_id: student._id,
+        exam_id: exam._id,
+        seat_id: availableSeats[i]._id,
+        attendance_status: 'pending',
+        assigned_at: new Date(),
+      }));
+      
+      await SeatAssignment.insertMany(assignments);
+      console.log('✅ Auto-assigned', assignments.length, 'seats');
+      logger.info(`Auto-assigned ${assignments.length} seats for exam ${exam._id}`);
+    } else {
+      console.log('❌ No students found at all for level', subject.level_year);
+    }
+  }
+  
+  // 3. If supervisors provided, auto-assign them
+  if (supervisor_ids && supervisor_ids.length > 0 && head_supervisors && head_supervisors.length > 0) {
+    const examHalls = await ExamHall.find({ exam_id: exam._id });
+    if (examHalls.length === 0) {
+      throw ApiError.badRequest('No halls assigned to this exam');
+    }
+    
+    const hallToExamHall = {};
+    for (const eh of examHalls) {
+      hallToExamHall[eh.hall_id.toString()] = eh._id.toString();
+    }
+    
+    for (const { hall_id } of head_supervisors) {
+      if (!hallToExamHall[hall_id]) {
+        throw ApiError.badRequest('Hall is not assigned to this exam');
+      }
+    }
+    
+    const examHallIds = examHalls.map(eh => eh._id);
+    const existingAssignments = await SupervisorAssignment.find({
+      exam_hall_id: { $in: examHallIds },
+    });
+    
+    const assignedSupervisorIds = existingAssignments.map(a => a.supervisor_id.toString());
+    const unassignedSupervisorIds = supervisor_ids.filter(id => !assignedSupervisorIds.includes(id));
+    
+    if (unassignedSupervisorIds.length === 0) {
+      throw ApiError.badRequest('All selected supervisors are already assigned to this exam');
+    }
+    
+    const headSupervisorIds = head_supervisors.map(h => h.supervisor_id);
+    for (const headId of headSupervisorIds) {
+      if (!unassignedSupervisorIds.includes(headId)) {
+        throw ApiError.badRequest('Head supervisor is already assigned or not in the selected pool');
+      }
+    }
+    
+    const assignments = [];
+    for (const { hall_id, supervisor_id } of head_supervisors) {
+      assignments.push({
+        exam_hall_id: hallToExamHall[hall_id],
+        supervisor_id: supervisor_id,
+        role: 'head',
+      });
+    }
+    
+    const remainingIds = unassignedSupervisorIds.filter(id => !headSupervisorIds.includes(id));
+    const shuffledHalls = [...examHalls].sort(() => Math.random() - 0.5);
+    
+    for (let i = 0; i < remainingIds.length; i++) {
+      const supervisorId = remainingIds[i];
+      const hall = shuffledHalls[i % shuffledHalls.length];
+      assignments.push({
+        exam_hall_id: hall._id,
+        supervisor_id: supervisorId,
+        role: 'invigilator',
+      });
+    }
+    
+    await SupervisorAssignment.insertMany(assignments);
+    logger.info(`Auto-assigned ${assignments.length} supervisors for exam ${exam._id}`);
+  }
+  
+  return exam;
 };
 
 const queryExams = async (filter, options) => {

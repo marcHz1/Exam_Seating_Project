@@ -5,11 +5,31 @@ const notificationService = require('../services/notificationService');
 
 const createSeatAssignment = catchAsync(async (req, res) => {
   const assignment = await seatAssignmentService.createSeatAssignment(req.body);
-  // Notify student
   try {
     await notificationService.notifySeatAssignment(assignment._id);
   } catch (e) { /* silent fail for notification */ }
   res.status(201).json({ success: true, data: assignment });
+});
+
+const bulkCreateSeatAssignments = catchAsync(async (req, res) => {
+  const result = await seatAssignmentService.bulkCreateSeatAssignments(req.body);
+  
+  // Notify students (silent fail)
+  for (const assignment of result.created) {
+    try {
+      await notificationService.notifySeatAssignment(assignment._id);
+    } catch (e) { /* silent fail */ }
+  }
+  
+  res.status(201).json({ 
+    success: true, 
+    data: {
+      assignments: result.created,
+      assignedCount: result.created.length,
+      skippedCount: result.skipped,
+      totalRequested: result.totalRequested,
+    }
+  });
 });
 
 const getSeatAssignments = catchAsync(async (req, res) => {
@@ -19,7 +39,6 @@ const getSeatAssignments = catchAsync(async (req, res) => {
   res.json({ success: true, data: result });
 });
 
-// NEW: Force filter to only the logged-in student's assignments
 const getMySeatAssignments = catchAsync(async (req, res) => {
   const filter = { student_id: req.user._id };
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
@@ -45,6 +64,7 @@ const deleteSeatAssignment = catchAsync(async (req, res) => {
 
 module.exports = {
   createSeatAssignment,
+  bulkCreateSeatAssignments,
   getSeatAssignments,
   getMySeatAssignments,
   getSeatAssignment,

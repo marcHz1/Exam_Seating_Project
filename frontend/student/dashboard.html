@@ -95,42 +95,43 @@
     }
 
     async function loadExams() {
-      document.getElementById('examsLoading').classList.remove('hidden');
-      document.getElementById('examsList').innerHTML = '';
-      document.getElementById('examsEmpty').classList.add('hidden');
-      try {
-        const data = await api.get('/exams');
-        const exams = data.data.exams || [];
-        document.getElementById('examsLoading').classList.add('hidden');
-        if (exams.length === 0) {
-          document.getElementById('examsEmpty').classList.remove('hidden');
-          return;
-        }
-        document.getElementById('examsList').innerHTML = exams.map(exam => `
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex items-center justify-between mb-4">
-              <span class="px-3 py-1 rounded-full text-xs font-medium ${
-                exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
-                exam.status === 'ongoing' ? 'bg-yellow-100 text-yellow-700' :
-                exam.status === 'completed' ? 'bg-green-100 text-green-700' :
-                'bg-red-100 text-red-700'
-              }">${exam.status}</span>
-              <span class="text-sm text-gray-500">${formatDate(exam.exam_date)}</span>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900">${exam.subject_id?.subject_name || 'Unknown Subject'}</h3>
-            <p class="text-sm text-gray-500 mt-1">Code: ${exam.subject_id?.subject_code || '-'}</p>
-            <div class="mt-4 flex items-center text-sm text-gray-600">
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              ${exam.start_time} - ${exam.end_time}
-            </div>
-            <p class="text-xs text-gray-400 mt-2">Type: ${exam.exam_type_id?.type_name || '-'}</p>
-          </div>
-        `).join('');
-      } catch (err) {
-        document.getElementById('examsLoading').classList.add('hidden');
-        showToast(err.message, 'error');
-      }
+  document.getElementById('examsLoading').classList.remove('hidden');
+  document.getElementById('examsList').innerHTML = '';
+  document.getElementById('examsEmpty').classList.add('hidden');
+  try {
+    // FIXED: Use /exams/my-exams so student only sees enrolled subjects
+    const data = await api.get('/exams/my-exams');
+    const exams = data.data.exams || [];
+    document.getElementById('examsLoading').classList.add('hidden');
+    if (exams.length === 0) {
+      document.getElementById('examsEmpty').classList.remove('hidden');
+      return;
     }
+    document.getElementById('examsList').innerHTML = exams.map(exam => `
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <span class="px-3 py-1 rounded-full text-xs font-medium ${
+            exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
+            exam.status === 'ongoing' ? 'bg-yellow-100 text-yellow-700' :
+            exam.status === 'completed' ? 'bg-green-100 text-green-700' :
+            'bg-red-100 text-red-700'
+          }">${exam.status}</span>
+          <span class="text-sm text-gray-500">${formatDate(exam.exam_date)}</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900">${exam.subject_id?.subject_name || 'Unknown Subject'}</h3>
+        <p class="text-sm text-gray-500 mt-1">Code: ${exam.subject_id?.subject_code || '-'}</p>
+        <div class="mt-4 flex items-center text-sm text-gray-600">
+          <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          ${exam.start_time} - ${exam.end_time}
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Type: ${exam.exam_type_id?.type_name || '-'}</p>
+      </div>
+    `).join('');
+  } catch (err) {
+    document.getElementById('examsLoading').classList.add('hidden');
+    showToast(err.message, 'error');
+  }
+}
 
     async function loadSeats() {
       document.getElementById('seatsLoading').classList.remove('hidden');

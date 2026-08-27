@@ -14,6 +14,14 @@ const getNotifications = catchAsync(async (req, res) => {
   res.json({ success: true, data: result });
 });
 
+// NEW: Only return notifications for the logged-in student
+const getMyNotifications = catchAsync(async (req, res) => {
+  const filter = { student_id: req.user._id };
+  const options = pick(req.query, ['sortBy', 'limit', 'page']);
+  const result = await notificationService.queryNotifications(filter, options);
+  res.json({ success: true, data: result });
+});
+
 const getNotification = catchAsync(async (req, res) => {
   const notification = await notificationService.getNotificationById(req.params.notificationId);
   if (!notification) return res.status(404).json({ success: false, message: 'Notification not found' });
@@ -28,6 +36,7 @@ const markAsRead = catchAsync(async (req, res) => {
 module.exports = {
   createNotification,
   getNotifications,
+  getMyNotifications,
   getNotification,
   markAsRead,
 };

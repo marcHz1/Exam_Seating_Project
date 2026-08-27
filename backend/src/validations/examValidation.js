@@ -9,6 +9,14 @@ const createExam = {
     start_time: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
     end_time: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
     status: Joi.string().valid('scheduled', 'ongoing', 'completed', 'cancelled'),
+    hall_ids: Joi.array().items(Joi.string().custom(objectId)).min(1),
+    supervisor_ids: Joi.array().items(Joi.string().custom(objectId)).min(1),
+    head_supervisors: Joi.array().items(
+      Joi.object().keys({
+        hall_id: Joi.string().custom(objectId).required(),
+        supervisor_id: Joi.string().custom(objectId).required(),
+      })
+    ).min(1),
   }),
 };
 

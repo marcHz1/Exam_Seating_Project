@@ -1,21 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const validate = require('../middleware/validate');
-const notificationValidation = require('../validations/notificationValidation');
 const notificationController = require('../controllers/notificationController');
-const { authAdmin, authStudent } = require('../middleware/auth');
+const { authStudent, authAny } = require('../middleware/auth');
 
 router
   .route('/')
-  .post(authAdmin, validate(notificationValidation.createNotification), notificationController.createNotification)
-  .get(authAdmin, validate(notificationValidation.getNotifications), notificationController.getNotifications);
+  .post(authAny, notificationController.createNotification)
+  .get(authAny, notificationController.getNotifications);
 
-// Student inbox
-router.get('/my-inbox', authStudent, notificationController.getNotifications);
+// FIXED: Now forces student_id from token
+router.get('/my-inbox', authStudent, notificationController.getMyNotifications);
 
 router
   .route('/:notificationId')
-  .get(authStudent, validate(notificationValidation.getNotification), notificationController.getNotification)
-  .patch(authStudent, validate(notificationValidation.markAsRead), notificationController.markAsRead);
+  .get(authStudent, notificationController.getNotification)
+  .patch(authStudent, notificationController.markAsRead);
 
 module.exports = router;
