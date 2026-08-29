@@ -3,67 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Seating System</title>
+  <title>Exam Seating System - University of Aleppo</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            university: {
+              50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+              400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+              800: '#115e59', 900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<base target="_blank">
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-white shadow-sm border-b">
+<body class="bg-gray-50 min-h-screen flex flex-col font-['Cairo']">
+  <!-- University Header -->
+  <div class="bg-gradient-to-r from-university-700 to-university-600 text-white py-2 px-4 text-center text-xs font-medium tracking-wide">
+    <span class="ar-text">جامعة حلب - كلية الهندسة المعلوماتية</span>
+    <span class="mx-2">|</span>
+    <span>University of Aleppo - Informatics Engineering Faculty</span>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex items-center">
-          <svg class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-          </svg>
-          <span class="ml-2 text-xl font-bold text-gray-900">ExamSeating</span>
+      <div class="flex justify-between h-18 items-center py-3">
+        <div class="flex items-center space-x-4">
+          <div class="h-12 w-12 rounded-full bg-university-100 flex items-center justify-center">
+            <i class="fas fa-university text-university-600 text-xl"></i>
+          </div>
+          <div>
+            <span class="text-xl font-bold bg-gradient-to-r from-university-600 to-university-500 bg-clip-text text-transparent block leading-tight">Exam Seating</span>
+            <span class="text-xs text-gray-500 ar-text">نظام إدارة الامتحانات</span>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4 text-sm text-gray-600">
+          <span class="flex items-center"><i class="fas fa-university mr-2 text-university-500"></i>University of Aleppo</span>
+          <span class="flex items-center"><i class="fas fa-graduation-cap mr-2 text-university-500"></i>Informatics Engineering</span>
         </div>
       </div>
     </div>
   </nav>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="text-center mb-12">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <div class="text-center mb-16">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-university-100 to-university-200 rounded-2xl mb-6 shadow-lg">
+        <i class="fas fa-graduation-cap text-4xl text-university-600"></i>
+      </div>
       <h1 class="text-4xl font-bold text-gray-900 mb-4">University Exam Management</h1>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">Seamless exam scheduling, hall allocation, seat assignment, and supervision management.</p>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">Seamless exam scheduling, hall allocation, seat assignment, and supervision management for the Informatics Engineering Faculty.</p>
+      <div class="mt-4 flex justify-center items-center space-x-2 text-sm text-university-600 font-medium">
+        <i class="fas fa-shield-alt"></i>
+        <span>Official Academic System</span>
+      </div>
     </div>
 
+    <!-- Portal Cards -->
     <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
       <!-- Student Card -->
-      <a href="/student/login.html" class="group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-8 border border-gray-100 text-center">
-        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-          <svg class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
-          </svg>
+      <a href="/student/login.html" class="group bg-white rounded-2xl shadow-sm hover:shadow-xl p-8 border border-gray-100 text-center relative overflow-hidden transition-all duration-300">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-blue-100 to-transparent rounded-bl-full opacity-50"></div>
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-sm">
+          <i class="fas fa-user-graduate text-2xl text-blue-600"></i>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Student Portal</h3>
-        <p class="text-gray-500">View exams, check seat assignments, and receive notifications.</p>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center">
+          <i class="fas fa-book-reader mr-2 text-blue-500 text-sm"></i>Student Portal
+        </h3>
+        <p class="text-gray-500 text-sm">View exams, check seat assignments, and receive notifications.</p>
+        <div class="mt-4 text-xs text-blue-600 font-medium flex items-center justify-center">
+          <span>Access Portal</span>
+          <i class="fas fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
+        </div>
       </a>
 
       <!-- Admin Card -->
-      <a href="/admin/login.html" class="group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-8 border border-gray-100 text-center">
-        <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-          <svg class="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
+      <a href="/admin/login.html" class="group bg-white rounded-2xl shadow-sm hover:shadow-xl p-8 border border-gray-100 text-center relative overflow-hidden transition-all duration-300">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-university-100 to-transparent rounded-bl-full opacity-50"></div>
+        <div class="w-16 h-16 bg-gradient-to-br from-university-100 to-university-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-sm">
+          <i class="fas fa-user-shield text-2xl text-university-600"></i>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Admin Portal</h3>
-        <p class="text-gray-500">Manage exams, halls, students, supervisors, and seat assignments.</p>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center">
+          <i class="fas fa-cogs mr-2 text-university-500 text-sm"></i>Admin Portal
+        </h3>
+        <p class="text-gray-500 text-sm">Manage exams, halls, students, supervisors, and seat assignments.</p>
+        <div class="mt-4 text-xs text-university-600 font-medium flex items-center justify-center">
+          <span>Access Portal</span>
+          <i class="fas fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
+        </div>
       </a>
 
       <!-- Supervisor Card -->
-      <a href="/supervisor/login.html" class="group bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-8 border border-gray-100 text-center">
-        <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-          <svg class="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+      <a href="/supervisor/login.html" class="group bg-white rounded-2xl shadow-sm hover:shadow-xl p-8 border border-gray-100 text-center relative overflow-hidden transition-all duration-300">
+        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-100 to-transparent rounded-bl-full opacity-50"></div>
+        <div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-sm">
+          <i class="fas fa-clipboard-check text-2xl text-emerald-600"></i>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Supervisor Portal</h3>
-        <p class="text-gray-500">View assigned halls and track student attendance.</p>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center">
+          <i class="fas fa-eye mr-2 text-emerald-500 text-sm"></i>Supervisor Portal
+        </h3>
+        <p class="text-gray-500 text-sm">View assigned halls and track student attendance.</p>
+        <div class="mt-4 text-xs text-emerald-600 font-medium flex items-center justify-center">
+          <span>Access Portal</span>
+          <i class="fas fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
+        </div>
       </a>
     </div>
+
+    <!-- Features Section -->
+    <div class="mt-16 grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+      <div class="text-center p-4">
+        <div class="w-12 h-12 bg-university-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-calendar-check text-university-600"></i>
+        </div>
+        <h4 class="font-semibold text-gray-900 text-sm">Smart Scheduling</h4>
+        <p class="text-xs text-gray-500 mt-1">Automated exam timetable generation</p>
+      </div>
+      <div class="text-center p-4">
+        <div class="w-12 h-12 bg-university-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-chair text-university-600"></i>
+        </div>
+        <h4 class="font-semibold text-gray-900 text-sm">Seat Allocation</h4>
+        <p class="text-xs text-gray-500 mt-1">Intelligent hall distribution</p>
+      </div>
+      <div class="text-center p-4">
+        <div class="w-12 h-12 bg-university-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-bell text-university-600"></i>
+        </div>
+        <h4 class="font-semibold text-gray-900 text-sm">Notifications</h4>
+        <p class="text-xs text-gray-500 mt-1">Real-time exam alerts</p>
+      </div>
+      <div class="text-center p-4">
+        <div class="w-12 h-12 bg-university-50 rounded-xl flex items-center justify-center mx-auto mb-3">
+          <i class="fas fa-chart-line text-university-600"></i>
+        </div>
+        <h4 class="font-semibold text-gray-900 text-sm">Attendance Tracking</h4>
+        <p class="text-xs text-gray-500 mt-1">Digital attendance monitoring</p>
+      </div>
+    </div>
   </main>
+
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-university-800 to-university-700 text-white mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-3 mb-4 md:mb-0">
+          <div class="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
+            <i class="fas fa-university text-white text-lg"></i>
+          </div>
+          <div>
+            <p class="font-bold text-sm ar-text">جامعة حلب - كلية الهندسة المعلوماتية</p>
+            <p class="text-xs text-university-100">University of Aleppo - Informatics Engineering Faculty</p>
+          </div>
+        </div>
+        <div class="text-center md:text-right text-xs text-university-100">
+          <p>Exam Seating Management System</p>
+          <p class="mt-1"> Academic Year 2025-2026</p>
+        </div>
+      </div>
+      <div class="border-t border-white/20 mt-4 pt-4 text-center text-xs text-university-100">
+        <p> All rights reserved. Official Academic System.</p>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

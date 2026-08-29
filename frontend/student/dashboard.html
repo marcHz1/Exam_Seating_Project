@@ -5,43 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Dashboard - Exam Seating System</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            university: {
+              50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+              400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+              800: '#115e59', 900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <!-- University Header Strip -->
+  <div class="university-header text-white py-2 px-4 text-center text-xs font-medium">
+    <span class="ar-text">جامعة حلب - كلية الهندسة المعلوماتية</span>
+    <span class="mx-2">|</span>
+    <span>University of Aleppo - Informatics Engineering Faculty</span>
+  </div>
+
   <!-- Navbar -->
-  <nav class="bg-white shadow-sm border-b">
+  <nav class="bg-white shadow-md border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex items-center">
-          <span class="text-xl font-bold text-gray-900">ExamSeating</span>
-          <span class="ml-4 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">Student</span>
+      <div class="flex justify-between h-16 items-center">
+        <div class="flex items-center space-x-3">
+          <img src="../image/logo.png" alt="University Logo" class="h-10 w-10 object-contain">
+          <div class="flex items-center">
+            <span class="text-xl font-bold university-gradient-text">Exam Seating</span>
+            <span class="ml-3 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium flex items-center">
+              <i class="fas fa-user-graduate mr-1.5 text-xs"></i>Student
+            </span>
+          </div>
         </div>
         <div class="flex items-center space-x-4">
-          <span id="userName" class="text-sm text-gray-600"></span>
-          <button onclick="logout('student')" class="text-sm text-red-600 hover:text-red-800 font-medium">Logout</button>
+          <div class="flex items-center text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg">
+            <i class="fas fa-user mr-2 text-blue-500"></i>
+            <span id="userName"></span>
+          </div>
+          <button onclick="logout('student')" class="text-sm text-red-600 hover:text-red-800 font-medium flex items-center space-x-1 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
         </div>
       </div>
     </div>
   </nav>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
     <!-- Tabs -->
     <div class="border-b border-gray-200 mb-6">
       <nav class="-mb-px flex space-x-8">
-        <button onclick="showTab('exams')" id="tab-exams" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">My Exams</button>
-        <button onclick="showTab('seats')" id="tab-seats" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">My Seat Assignments</button>
-        <button onclick="showTab('notifications')" id="tab-notifications" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Notifications</button>
+        <button onclick="showTab('exams')" id="tab-exams" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+          <i class="fas fa-clipboard-list mr-2"></i>My Exams
+        </button>
+        <button onclick="showTab('seats')" id="tab-seats" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+          <i class="fas fa-chair mr-2"></i>My Seat Assignments
+        </button>
+        <button onclick="showTab('notifications')" id="tab-notifications" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+          <i class="fas fa-bell mr-2"></i>Notifications
+        </button>
       </nav>
     </div>
 
     <!-- Exams Tab -->
     <div id="view-exams" class="tab-content fade-in">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+          <i class="fas fa-calendar-alt mr-2 text-blue-500"></i>Scheduled Exams
+        </h2>
+        <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+          <i class="fas fa-info-circle mr-1 text-blue-400"></i>
+          <span id="examsCount">Loading...</span>
+        </span>
+      </div>
       <div id="examsLoading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-500">Loading exams...</p>
+        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600"></div>
+        <p class="mt-3 text-gray-500">Loading exams...</p>
       </div>
       <div id="examsEmpty" class="hidden text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+          <i class="fas fa-inbox text-2xl text-gray-400"></i>
+        </div>
         <p class="text-gray-500">No exams scheduled yet.</p>
       </div>
       <div id="examsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -49,11 +101,23 @@
 
     <!-- Seats Tab -->
     <div id="view-seats" class="tab-content hidden fade-in">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+          <i class="fas fa-chair mr-2 text-blue-500"></i>My Seat Assignments
+        </h2>
+        <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+          <i class="fas fa-info-circle mr-1 text-blue-400"></i>
+          <span id="seatsCount">Loading...</span>
+        </span>
+      </div>
       <div id="seatsLoading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-500">Loading seat assignments...</p>
+        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600"></div>
+        <p class="mt-3 text-gray-500">Loading seat assignments...</p>
       </div>
       <div id="seatsEmpty" class="hidden text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+          <i class="fas fa-chair text-2xl text-gray-400"></i>
+        </div>
         <p class="text-gray-500">No seat assignments yet.</p>
       </div>
       <div id="seatsList" class="space-y-4"></div>
@@ -61,16 +125,44 @@
 
     <!-- Notifications Tab -->
     <div id="view-notifications" class="tab-content hidden fade-in">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+          <i class="fas fa-bell mr-2 text-blue-500"></i>My Notifications
+        </h2>
+        <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+          <i class="fas fa-info-circle mr-1 text-blue-400"></i>
+          <span id="notifCount">Loading...</span>
+        </span>
+      </div>
       <div id="notifLoading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <p class="mt-2 text-gray-500">Loading notifications...</p>
+        <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600"></div>
+        <p class="mt-3 text-gray-500">Loading notifications...</p>
       </div>
       <div id="notifEmpty" class="hidden text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+          <i class="fas fa-bell-slash text-2xl text-gray-400"></i>
+        </div>
         <p class="text-gray-500">No notifications yet.</p>
       </div>
       <div id="notifList" class="space-y-3"></div>
     </div>
   </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+        <div class="flex items-center space-x-2 mb-2 md:mb-0">
+          <img src="../image/logo.png" alt="Logo" class="h-6 w-6 object-contain">
+          <span class="ar-text">جامعة حلب - كلية الهندسة المعلوماتية</span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <i class="fas fa-shield-alt text-blue-400 mr-1"></i>
+          <span>Official Academic System</span>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script src="/js/api.js"></script>
   <script>
@@ -95,43 +187,64 @@
     }
 
     async function loadExams() {
-  document.getElementById('examsLoading').classList.remove('hidden');
-  document.getElementById('examsList').innerHTML = '';
-  document.getElementById('examsEmpty').classList.add('hidden');
-  try {
-    // FIXED: Use /exams/my-exams so student only sees enrolled subjects
-    const data = await api.get('/exams/my-exams');
-    const exams = data.data.exams || [];
-    document.getElementById('examsLoading').classList.add('hidden');
-    if (exams.length === 0) {
-      document.getElementById('examsEmpty').classList.remove('hidden');
-      return;
+      document.getElementById('examsLoading').classList.remove('hidden');
+      document.getElementById('examsList').innerHTML = '';
+      document.getElementById('examsEmpty').classList.add('hidden');
+      try {
+        // FIXED: Use /exams/my-exams so student only sees enrolled subjects
+        const data = await api.get('/exams/my-exams');
+        const exams = data.data.exams || [];
+        document.getElementById('examsLoading').classList.add('hidden');
+        document.getElementById('examsCount').textContent = exams.length + ' exam(s)';
+        if (exams.length === 0) {
+          document.getElementById('examsEmpty').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('examsList').innerHTML = exams.map(exam => {
+          const statusConfig = {
+            scheduled: { bg: 'bg-blue-100', text: 'text-blue-700', icon: 'fa-calendar-check' },
+            ongoing: { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: 'fa-spinner fa-spin' },
+            completed: { bg: 'bg-green-100', text: 'text-green-700', icon: 'fa-check-circle' },
+            cancelled: { bg: 'bg-red-100', text: 'text-red-700', icon: 'fa-times-circle' }
+          };
+          const cfg = statusConfig[exam.status] || statusConfig.scheduled;
+          return `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-50 to-transparent rounded-bl-full"></div>
+              <div class="flex items-center justify-between mb-4 relative">
+                <span class="px-3 py-1 rounded-full text-xs font-medium ${cfg.bg} ${cfg.text} flex items-center">
+                  <i class="fas ${cfg.icon} mr-1.5 text-[10px]"></i>${exam.status}
+                </span>
+                <span class="text-sm text-gray-500 flex items-center">
+                  <i class="far fa-calendar-alt mr-1.5 text-blue-400"></i>${formatDate(exam.exam_date)}
+                </span>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-book mr-2 text-blue-500"></i>
+                ${exam.subject_id?.subject_name || 'Unknown Subject'}
+              </h3>
+              <p class="text-sm text-gray-500 mt-1 flex items-center">
+                <i class="fas fa-barcode mr-2 text-gray-400 w-4"></i>
+                Code: ${exam.subject_id?.subject_code || '-'}
+              </p>
+              <div class="mt-4 flex items-center text-sm text-gray-600">
+                <i class="far fa-clock mr-2 text-blue-400 w-4"></i>
+                <span>${exam.start_time} - ${exam.end_time}</span>
+              </div>
+              <div class="mt-3 pt-3 border-t border-gray-100">
+                <p class="text-xs text-gray-400 flex items-center">
+                  <i class="fas fa-tag mr-2 text-gray-300 w-4"></i>
+                  Type: ${exam.exam_type_id?.type_name || '-'}
+                </p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        document.getElementById('examsLoading').classList.add('hidden');
+        showToast(err.message, 'error');
+      }
     }
-    document.getElementById('examsList').innerHTML = exams.map(exam => `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between mb-4">
-          <span class="px-3 py-1 rounded-full text-xs font-medium ${
-            exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
-            exam.status === 'ongoing' ? 'bg-yellow-100 text-yellow-700' :
-            exam.status === 'completed' ? 'bg-green-100 text-green-700' :
-            'bg-red-100 text-red-700'
-          }">${exam.status}</span>
-          <span class="text-sm text-gray-500">${formatDate(exam.exam_date)}</span>
-        </div>
-        <h3 class="text-lg font-semibold text-gray-900">${exam.subject_id?.subject_name || 'Unknown Subject'}</h3>
-        <p class="text-sm text-gray-500 mt-1">Code: ${exam.subject_id?.subject_code || '-'}</p>
-        <div class="mt-4 flex items-center text-sm text-gray-600">
-          <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          ${exam.start_time} - ${exam.end_time}
-        </div>
-        <p class="text-xs text-gray-400 mt-2">Type: ${exam.exam_type_id?.type_name || '-'}</p>
-      </div>
-    `).join('');
-  } catch (err) {
-    document.getElementById('examsLoading').classList.add('hidden');
-    showToast(err.message, 'error');
-  }
-}
 
     async function loadSeats() {
       document.getElementById('seatsLoading').classList.remove('hidden');
@@ -141,34 +254,55 @@
         const data = await api.get('/seat-assignments/my-assignments');
         const assignments = data.data.assignments || [];
         document.getElementById('seatsLoading').classList.add('hidden');
+        document.getElementById('seatsCount').textContent = assignments.length + ' assignment(s)';
         if (assignments.length === 0) {
           document.getElementById('seatsEmpty').classList.remove('hidden');
           return;
         }
-        document.getElementById('seatsList').innerHTML = assignments.map(a => `
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-between">
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900">${a.exam_id?.subject_id?.subject_name || 'Exam'}</h3>
-              <p class="text-sm text-gray-500">Date: ${formatDate(a.exam_id?.exam_date)} | Time: ${a.exam_id?.start_time} - ${a.exam_id?.end_time}</p>
-              <div class="mt-2 flex items-center space-x-4">
-                <span class="flex items-center text-sm font-medium text-indigo-600">
-                  <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                  Seat: ${a.seat_id?.seat_label || '-'}
-                </span>
-                <span class="text-sm text-gray-500">Row ${a.seat_id?.row_number}, Col ${a.seat_id?.column_number}</span>
+        document.getElementById('seatsList').innerHTML = assignments.map(a => {
+          const statusConfig = {
+            present: { bg: 'bg-green-100', text: 'text-green-700', icon: 'fa-check-circle' },
+            absent: { bg: 'bg-red-100', text: 'text-red-700', icon: 'fa-times-circle' },
+            late: { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: 'fa-clock' }
+          };
+          const cfg = statusConfig[a.attendance_status] || { bg: 'bg-gray-100', text: 'text-gray-700', icon: 'fa-question-circle' };
+          return `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                  <i class="fas fa-book-open mr-2 text-blue-500"></i>
+                  ${a.exam_id?.subject_id?.subject_name || 'Exam'}
+                </h3>
+                <p class="text-sm text-gray-500 mt-1 flex items-center">
+                  <i class="far fa-calendar mr-2 text-blue-400 w-4"></i>
+                  Date: ${formatDate(a.exam_id?.exam_date)} 
+                  <span class="mx-2 text-gray-300">|</span>
+                  <i class="far fa-clock mr-2 text-blue-400 w-4"></i>
+                  ${a.exam_id?.start_time} - ${a.exam_id?.end_time}
+                </p>
+                <div class="mt-3 flex items-center space-x-4">
+                  <span class="flex items-center text-sm font-medium text-university-600 bg-university-50 px-3 py-1.5 rounded-lg">
+                    <i class="fas fa-chair mr-2"></i>
+                    Seat: ${a.seat_id?.seat_label || '-'}
+                  </span>
+                  <span class="text-sm text-gray-500 flex items-center">
+                    <i class="fas fa-th mr-2 text-gray-400"></i>
+                    Row ${a.seat_id?.row_number}, Col ${a.seat_id?.column_number}
+                  </span>
+                </div>
+                <div class="mt-2 text-sm text-gray-600 flex items-center">
+                  <i class="fas fa-door-open mr-2 text-gray-400 w-4"></i>
+                  <span class="font-medium">Hall:</span> 
+                  <span class="ml-1">${a.seat_id?.hall_id?.hall_name || '-'}</span>
+                </div>
               </div>
-              <div class="mt-1 text-sm text-gray-600">
-                <span class="font-medium">Hall:</span> ${a.seat_id?.hall_id?.hall_name || '-'}
-              </div>
+              <span class="px-4 py-2 rounded-lg text-sm font-medium ${cfg.bg} ${cfg.text} flex items-center ml-4">
+                <i class="fas ${cfg.icon} mr-1.5"></i>
+                ${a.attendance_status}
+              </span>
             </div>
-            <span class="px-4 py-2 rounded-lg text-sm font-medium ${
-              a.attendance_status === 'present' ? 'bg-green-100 text-green-700' :
-              a.attendance_status === 'absent' ? 'bg-red-100 text-red-700' :
-              a.attendance_status === 'late' ? 'bg-yellow-100 text-yellow-700' :
-              'bg-gray-100 text-gray-700'
-            }">${a.attendance_status}</span>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       } catch (err) {
         document.getElementById('seatsLoading').classList.add('hidden');
         showToast(err.message, 'error');
@@ -183,26 +317,43 @@
         const data = await api.get('/notifications/my-inbox');
         const notifs = data.data.notifications || [];
         document.getElementById('notifLoading').classList.add('hidden');
+        document.getElementById('notifCount').textContent = notifs.length + ' notification(s)';
         if (notifs.length === 0) {
           document.getElementById('notifEmpty').classList.remove('hidden');
           return;
         }
-        document.getElementById('notifList').innerHTML = notifs.map(n => `
-          <div class="bg-white rounded-xl shadow-sm border ${n.status === 'read' ? 'border-gray-100' : 'border-blue-200 bg-blue-50'} p-4 flex items-start justify-between">
-            <div class="flex-1">
-              <div class="flex items-center space-x-2 mb-1">
-                <span class="px-2 py-0.5 rounded text-xs font-medium ${
-                  n.channel === 'email' ? 'bg-purple-100 text-purple-700' :
-                  n.channel === 'sms' ? 'bg-orange-100 text-orange-700' :
-                  'bg-blue-100 text-blue-700'
-                }">${n.channel}</span>
-                <span class="text-xs text-gray-400">${formatDateTime(n.createdAt)}</span>
+        document.getElementById('notifList').innerHTML = notifs.map(n => {
+          const channelConfig = {
+            email: { bg: 'bg-purple-100', text: 'text-purple-700', icon: 'fa-envelope' },
+            sms: { bg: 'bg-orange-100', text: 'text-orange-700', icon: 'fa-sms' },
+            push: { bg: 'bg-blue-100', text: 'text-blue-700', icon: 'fa-bell' }
+          };
+          const cfg = channelConfig[n.channel] || channelConfig.push;
+          return `
+            <div class="bg-white rounded-xl shadow-sm border ${n.status === 'read' ? 'border-gray-100' : 'border-blue-200 bg-blue-50/50'} p-4 flex items-start justify-between hover:shadow-md transition-shadow">
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-medium ${cfg.bg} ${cfg.text} flex items-center">
+                    <i class="fas ${cfg.icon} mr-1 text-[10px]"></i>${n.channel}
+                  </span>
+                  <span class="text-xs text-gray-400 flex items-center">
+                    <i class="far fa-clock mr-1"></i>${formatDateTime(n.createdAt)}
+                  </span>
+                  ${n.status !== 'read' ? '<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold">NEW</span>' : ''}
+                </div>
+                <p class="text-sm text-gray-800 flex items-start">
+                  <i class="fas fa-quote-left mr-2 text-gray-300 mt-0.5 text-xs"></i>
+                  ${n.message}
+                </p>
               </div>
-              <p class="text-sm text-gray-800">${n.message}</p>
+              ${n.status !== 'read' ? `
+                <button onclick="markRead('${n._id}')" class="ml-4 text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors">
+                  <i class="fas fa-check-double mr-1"></i>Mark read
+                </button>
+              ` : ''}
             </div>
-            ${n.status !== 'read' ? `<button onclick="markRead('${n._id}')" class="ml-4 text-xs text-blue-600 hover:underline font-medium">Mark read</button>` : ''}
-          </div>
-        `).join('');
+          `;
+        }).join('');
       } catch (err) {
         document.getElementById('notifLoading').classList.add('hidden');
         showToast(err.message, 'error');

@@ -5,44 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - Exam Seating System</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            university: {
+              50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+              400: '#2dd4bf', 500: '#14b8a6', 600: '#059669', 700: '#047857',
+              800: '#065f46', 900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<base target="_blank">
+<base target="_blank">
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen font-['Cairo']">
   <div class="flex h-screen">
-    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div class="p-6 border-b">
-        <span class="text-xl font-bold text-gray-900">ExamSeating</span>
-        <span class="block text-xs text-gray-500 mt-1">Admin Portal</span>
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-lg z-20">
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-university-100 flex items-center justify-center">
+            <i class="fas fa-university text-university-600 text-lg"></i>
+          </div>
+          <div>
+            <span class="text-lg font-bold text-gray-900 block leading-tight">Exam Seating</span>
+            <span class="text-xs text-university-600 font-semibold">Admin Portal</span>
+          </div>
+        </div>
       </div>
-      <nav class="flex-1 overflow-y-auto p-4 space-y-1">
-        <button onclick="navigate('dashboard')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Dashboard</button>
-        <button onclick="navigate('students')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Students</button>
-        <button onclick="navigate('semesters')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Semesters</button>
-        <button onclick="navigate('subjects')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Subjects</button>
-        <button onclick="navigate('enrollments')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Enrollments</button>
-        <button onclick="navigate('exam-types')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Exam Types</button>
-        <button onclick="navigate('exams')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Exams</button>
-        <button onclick="navigate('buildings')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Buildings</button>
-        <button onclick="navigate('halls')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Halls</button>
-        <button onclick="navigate('supervisors')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Supervisors</button>
-        <button onclick="navigate('seat-assignments')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Seat Assignments</button>
-        <button onclick="navigate('proposals')" class="sidebar-link w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">Cancellation Proposals</button>
+      <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+        <button onclick="navigate('dashboard')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-chart-pie w-5 text-center text-university-500"></i><span>Dashboard</span>
+        </button>
+        <button onclick="navigate('students')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-user-graduate w-5 text-center text-blue-500"></i><span>Students</span>
+        </button>
+        <button onclick="navigate('semesters')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-calendar-alt w-5 text-center text-purple-500"></i><span>Semesters</span>
+        </button>
+        <button onclick="navigate('subjects')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-book w-5 text-center text-orange-500"></i><span>Subjects</span>
+        </button>
+        <button onclick="navigate('enrollments')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-file-signature w-5 text-center text-pink-500"></i><span>Enrollments</span>
+        </button>
+        <button onclick="navigate('exam-types')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-tags w-5 text-center text-yellow-500"></i><span>Exam Types</span>
+        </button>
+        <button onclick="navigate('exams')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-clipboard-list w-5 text-center text-red-500"></i><span>Exams</span>
+        </button>
+        <button onclick="navigate('buildings')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-building w-5 text-center text-gray-500"></i><span>Buildings</span>
+        </button>
+        <button onclick="navigate('halls')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-door-open w-5 text-center text-indigo-500"></i><span>Halls</span>
+        </button>
+        <button onclick="navigate('supervisors')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-user-tie w-5 text-center text-emerald-500"></i><span>Supervisors</span>
+        </button>
+        <button onclick="navigate('seat-assignments')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-chair w-5 text-center text-cyan-500"></i><span>Seat Assignments</span>
+        </button>
+        <button onclick="navigate('proposals')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-clipboard-question w-5 text-center text-rose-500"></i><span>Cancellation Proposals</span>
+        </button>
       </nav>
-      <div class="p-4 border-t">
+      <div class="p-4 border-t border-gray-100 bg-gray-50">
         <div class="flex items-center justify-between">
-          <span id="userName" class="text-sm text-gray-600 truncate"></span>
-          <button onclick="logout('admin')" class="text-sm text-red-600 hover:text-red-800 font-medium">Logout</button>
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-full bg-university-100 flex items-center justify-center">
+              <i class="fas fa-user-shield text-university-600 text-xs"></i>
+            </div>
+            <span id="userName" class="text-sm text-gray-600 font-medium truncate max-w-[120px]"></span>
+          </div>
+          <button onclick="logout('admin')" class="text-sm text-red-600 hover:text-red-800 font-medium flex items-center space-x-1 transition-colors">
+            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+          </button>
         </div>
       </div>
     </aside>
 
-    <main class="flex-1 overflow-y-auto">
-      <div class="p-8">
-        <div id="page-header" class="mb-8">
-          <h1 id="page-title" class="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p id="page-desc" class="text-gray-500 mt-1">Overview of the examination system</p>
+    <main class="flex-1 overflow-y-auto bg-gray-50">
+      <div class="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+        <div>
+          <h1 id="page-title" class="text-2xl font-bold text-gray-900 flex items-center space-x-3">
+            <i class="fas fa-chart-pie text-university-500 mr-3"></i><span>Dashboard</span>
+          </h1>
+          <p id="page-desc" class="text-gray-500 mt-1 text-sm">Overview of the examination system</p>
         </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right hidden md:block">
+            <p class="text-xs text-gray-500">University of Aleppo</p>
+            <p class="text-xs font-semibold text-university-600">Informatics Engineering Faculty</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-university-100 flex items-center justify-center opacity-80">
+            <i class="fas fa-university text-university-600 text-lg"></i>
+          </div>
+        </div>
+      </div>
+      <div class="p-8">
+        <div id="page-header" class="mb-8 hidden"></div>
         <div id="content-area"></div>
       </div>
     </main>
@@ -51,17 +121,23 @@
   <div id="modal" class="fixed inset-0 z-50 hidden">
     <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative z-10">
-        <div class="p-6 border-b flex items-center justify-between">
-          <h3 id="modal-title" class="text-lg font-semibold text-gray-900">Create</h3>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto relative z-10 border border-gray-100">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-university-50 to-blue-50">
+          <h3 id="modal-title" class="text-lg font-bold text-gray-900 flex items-center space-x-2">
+            <i class="fas fa-plus-circle text-university-500 mr-2"></i><span>Create</span>
+          </h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50">
+            <i class="fas fa-times"></i>
           </button>
         </div>
         <div id="modal-body" class="p-6"></div>
-        <div id="modal-footer" class="p-6 border-t bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
-          <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-          <button id="modal-save" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">Save</button>
+        <div id="modal-footer" class="p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+          <button onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-1">
+            <i class="fas fa-times text-xs"></i><span>Cancel</span>
+          </button>
+          <button id="modal-save" class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-university-600 to-university-500 rounded-lg hover:from-university-700 hover:to-university-600 transition-all flex items-center space-x-1 shadow-md">
+            <i class="fas fa-check text-xs"></i><span>Save</span>
+          </button>
         </div>
       </div>
     </div>
@@ -75,196 +151,332 @@
     document.getElementById('userName').textContent = user.full_name || 'Admin';
 
     let currentView = 'dashboard';
+    let currentData = [];
+
+    const pageIcons = {
+      dashboard: 'fa-chart-pie', students: 'fa-user-graduate', semesters: 'fa-calendar-alt',
+      subjects: 'fa-book', enrollments: 'fa-file-signature', 'exam-types': 'fa-tags',
+      exams: 'fa-clipboard-list', buildings: 'fa-building', halls: 'fa-door-open',
+      supervisors: 'fa-user-tie', 'seat-assignments': 'fa-chair', proposals: 'fa-clipboard-question'
+    };
 
     function navigate(view) {
       currentView = view;
       document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
-      event.target.classList.add('active');
+      event.currentTarget.classList.add('active');
+      const iconClass = pageIcons[view] || 'fa-circle';
+      document.getElementById('page-title').innerHTML = `<i class="fas ${iconClass} text-university-500 mr-3"></i><span>${view.charAt(0).toUpperCase() + view.slice(1).replace('-', ' ')}</span>`;
       renderView();
     }
 
     function renderView() {
       const area = document.getElementById('content-area');
-      const title = document.getElementById('page-title');
       const desc = document.getElementById('page-desc');
-      area.innerHTML = '<div class="text-center py-12"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>';
-
+      area.innerHTML = `<div class="text-center py-12"><div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-university-200 border-t-university-600"></div><p class="mt-3 text-gray-500 text-sm">Loading data...</p></div>`;
       switch(currentView) {
         case 'dashboard': renderDashboard(); break;
-        case 'students': title.textContent='Students'; desc.textContent='Manage student accounts'; renderCrud('students', 'student'); break;
-        case 'semesters': title.textContent='Semesters'; desc.textContent='Academic terms'; renderCrud('semesters', 'semester'); break;
-        case 'subjects': title.textContent='Subjects'; desc.textContent='Courses and curriculum'; renderCrud('subjects', 'subject'); break;
-        case 'enrollments': title.textContent='Enrollments'; desc.textContent='Student subject registrations'; renderCrud('enrollments', 'enrollment'); break;
-        case 'exam-types': title.textContent='Exam Types'; desc.textContent='Categories of examinations'; renderCrud('exam-types', 'examType'); break;
-        case 'exams': title.textContent='Exams'; desc.textContent='Schedule and manage exams'; renderExams(); break;
-        case 'buildings': title.textContent='Buildings'; desc.textContent='Campus buildings'; renderCrud('buildings', 'building'); break;
-        case 'halls': title.textContent='Halls'; desc.textContent='Examination venues'; renderCrud('halls', 'hall'); break;
-        case 'supervisors': title.textContent='Supervisors'; desc.textContent='Examination staff'; renderCrud('supervisors', 'supervisor'); break;
-        case 'seat-assignments': title.textContent='Seat Assignments'; desc.textContent='Manual seat allocation'; renderSeatAssignments(); break;
-        case 'proposals': title.textContent='Cancellation Proposals'; desc.textContent='Supervisor cancellation requests'; renderProposals(); break;
+        case 'students': desc.textContent='Manage student accounts'; renderCrud('students', 'student'); break;
+        case 'semesters': desc.textContent='Academic terms'; renderCrud('semesters', 'semester'); break;
+        case 'subjects': desc.textContent='Courses and curriculum'; renderCrud('subjects', 'subject'); break;
+        case 'enrollments': desc.textContent='Student subject registrations'; renderCrud('enrollments', 'enrollment'); break;
+        case 'exam-types': desc.textContent='Categories of examinations'; renderCrud('exam-types', 'examType'); break;
+        case 'exams': desc.textContent='Schedule and manage exams'; renderExams(); break;
+        case 'buildings': desc.textContent='Campus buildings'; renderCrud('buildings', 'building'); break;
+        case 'halls': desc.textContent='Examination venues'; renderCrud('halls', 'hall'); break;
+        case 'supervisors': desc.textContent='Examination staff'; renderCrud('supervisors', 'supervisor'); break;
+        case 'seat-assignments': desc.textContent='Manual seat allocation'; renderSeatAssignments(); break;
+        case 'proposals': desc.textContent='Supervisor cancellation requests'; renderProposals(); break;
       }
     }
 
     async function renderDashboard() {
-      document.getElementById('page-title').textContent = 'Dashboard';
       document.getElementById('page-desc').textContent = 'System overview';
       try {
         const [students, exams, halls, supervisors] = await Promise.all([
           api.get('/students?limit=1'), api.get('/exams?limit=1'),
           api.get('/halls?limit=1'), api.get('/supervisors?limit=1')
         ]);
+        const stats = [
+          { icon: 'fa-user-graduate', label: 'Total Students', value: students.data.total || 0, bg: 'bg-blue-50', text: 'text-blue-600', bar: 'from-blue-500 to-blue-600' },
+          { icon: 'fa-clipboard-list', label: 'Scheduled Exams', value: exams.data.total || 0, bg: 'bg-red-50', text: 'text-red-600', bar: 'from-red-500 to-red-600' },
+          { icon: 'fa-door-open', label: 'Halls', value: halls.data.total || 0, bg: 'bg-indigo-50', text: 'text-indigo-600', bar: 'from-indigo-500 to-indigo-600' },
+          { icon: 'fa-user-tie', label: 'Supervisors', value: supervisors.data.total || 0, bg: 'bg-emerald-50', text: 'text-emerald-600', bar: 'from-emerald-500 to-emerald-600' },
+        ];
         document.getElementById('content-area').innerHTML = `
           <div class="grid md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-sm text-gray-500">Total Students</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">${students.data.total || 0}</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-sm text-gray-500">Scheduled Exams</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">${exams.data.total || 0}</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-sm text-gray-500">Halls</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">${halls.data.total || 0}</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <p class="text-sm text-gray-500">Supervisors</p>
-              <p class="text-3xl font-bold text-gray-900 mt-2">${supervisors.data.total || 0}</p>
-            </div>
+            ${stats.map(s => `<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <div class="flex items-center justify-between">
+                <div><p class="text-sm text-gray-500 font-medium">${s.label}</p><p class="text-3xl font-bold text-gray-900 mt-2">${s.value}</p></div>
+                <div class="w-12 h-12 ${s.bg} rounded-xl flex items-center justify-center"><i class="fas ${s.icon} text-xl ${s.text}"></i></div>
+              </div>
+              <div class="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r ${s.bar} rounded-full" style="width: ${Math.min((s.value / (s.value + 10)) * 100, 100)}%"></div></div>
+            </div>`).join('')}
           </div>
-        `;
-      } catch(e) {
-        showToast(e.message, 'error');
-      }
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="flex items-center space-x-3 mb-4"><div class="w-10 h-10 bg-university-100 rounded-lg flex items-center justify-center"><i class="fas fa-info-circle text-university-600"></i></div><h3 class="font-bold text-gray-900">System Information</h3></div>
+              <div class="space-y-3 text-sm text-gray-600">
+                <div class="flex items-center space-x-3"><i class="fas fa-university text-gray-400 w-5"></i><span>University of Aleppo</span></div>
+                <div class="flex items-center space-x-3"><i class="fas fa-graduation-cap text-gray-400 w-5"></i><span>Informatics Engineering Faculty</span></div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div class="flex items-center space-x-3 mb-4"><div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center"><i class="fas fa-bolt text-blue-600"></i></div><h3 class="font-bold text-gray-900">Quick Actions</h3></div>
+              <div class="grid grid-cols-2 gap-3">
+                <button onclick="navigate('exams')" class="p-3 rounded-lg bg-gray-50 hover:bg-university-50 text-sm font-medium text-gray-700 hover:text-university-700 text-left flex items-center space-x-2"><i class="fas fa-plus text-university-500"></i><span>Schedule Exam</span></button>
+                <button onclick="navigate('students')" class="p-3 rounded-lg bg-gray-50 hover:bg-blue-50 text-sm font-medium text-gray-700 hover:text-blue-700 text-left flex items-center space-x-2"><i class="fas fa-plus text-blue-500"></i><span>Add Student</span></button>
+              </div>
+            </div>
+          </div>`;
+      } catch(e) { showToast(e.message, 'error'); }
     }
 
     async function renderProposals() {
-  const area = document.getElementById('content-area');
-  try {
-    const data = await api.get('/cancellation-proposals');
-    const items = data.data.proposals || [];
-    area.innerHTML = `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supervisor</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exam</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hall</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-            ${items.map(p => {
-              const exam = p.exam_hall_id?.exam_id || {};
-              const hall = p.exam_hall_id?.hall_id || {};
-              const subject = exam.subject_id || {};
-              return '<tr class="table-row">' +
-                '<td class="px-6 py-4 text-sm text-gray-900">' + (p.supervisor_id?.full_name || '-') + '</td>' +
-                '<td class="px-6 py-4 text-sm text-gray-900">' + (subject.subject_name || '-') + ' (' + formatDate(exam.exam_date) + ')</td>' +
-                '<td class="px-6 py-4 text-sm text-gray-900">' + (hall.hall_name || '-') + '</td>' +
-                '<td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="' + p.reason + '">' + p.reason + '</td>' +
-                '<td class="px-6 py-4 text-sm"><span class="px-2 py-1 rounded-full text-xs font-medium ' + (p.status==='pending'?'bg-yellow-100 text-yellow-700':p.status==='approved'?'bg-green-100 text-green-700':'bg-red-100 text-red-700') + '">' + p.status + '</span></td>' +
-                '<td class="px-6 py-4 text-right text-sm font-medium space-x-2">' +
-                  (p.status === 'pending' ? 
-                    '<button onclick="openApproveProposalModal(\'' + p._id + '\', \'' + (p.supervisor_id?.full_name || '') + '\', \'' + (hall.hall_name || '') + '\')" class="text-green-600 hover:text-green-900 font-medium">Approve</button>' +
-                    '<button onclick="openDeclineProposalModal(\'' + p._id + '\')" class="text-red-600 hover:text-red-900 font-medium">Decline</button>'
-                    : '<span class="text-gray-400 text-xs">Resolved</span>'
-                  ) +
-                '</td>' +
-              '</tr>';
-            }).join('')}
-          </tbody>
-        </table>
-        ${items.length === 0 ? '<div class="text-center py-8 text-gray-500">No proposals found</div>' : ''}
-      </div>
-    `;
-  } catch(e) { showToast(e.message, 'error'); }
-}
+      const area = document.getElementById('content-area');
+      try {
+        const data = await api.get('/cancellation-proposals?limit=1000');
+        const items = data.data.proposals || [];
+        area.innerHTML = `
+          <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="relative flex-1 sm:w-64">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+              <input type="text" id="search-proposals" placeholder="Search proposals..." oninput="filterTable('search-proposals', '#table-proposals')" onkeydown="if(event.key==='Enter'){event.preventDefault();filterTable('search-proposals', '#table-proposals');}" class="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition">
+              <button type="button" onclick="clearSearch('search-proposals', filterTable, '#table-proposals')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors p-1" title="Clear search">
+                <i class="fas fa-times text-xs"></i>
+              </button>
+            </div>
+            <button type="button" onclick="filterTable('search-proposals', '#table-proposals')" class="px-4 py-2 bg-university-600 hover:bg-university-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1">
+              <i class="fas fa-search text-xs"></i><span>Search</span>
+            </button>
+            <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 whitespace-nowrap"><i class="fas fa-clipboard-question mr-1 text-gray-400"></i> ${items.length} proposals</span>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <table id="table-proposals" class="min-w-full divide-y divide-gray-200 university-table">
+              <thead>
+                <tr>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-user-tie mr-1 opacity-70"></i>Supervisor</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-book mr-1 opacity-70"></i>Exam</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-door-open mr-1 opacity-70"></i>Hall</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-comment mr-1 opacity-70"></i>Reason</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-info-circle mr-1 opacity-70"></i>Status</th>
+                  <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                ${items.map(p => {
+                  const exam = p.exam_hall_id && p.exam_hall_id.exam_id || {};
+                  const hall = p.exam_hall_id && p.exam_hall_id.hall_id || {};
+                  const subject = exam.subject_id || {};
+                  const statusClass = p.status==='pending' ? 'bg-yellow-100 text-yellow-700' : p.status==='approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                  return `<tr class="table-row transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${p.supervisor_id && p.supervisor_id.full_name || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${subject.subject_name || '-'} (${formatDate(exam.exam_date)})</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${hall.hall_name || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="${p.reason}">${p.reason}</td>
+                    <td class="px-6 py-4 text-sm"><span class="px-3 py-1 rounded-full text-xs font-semibold ${statusClass}"><i class="fas fa-circle text-[8px] mr-1"></i>${p.status}</span></td>
+                    <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                      ${p.status === 'pending' ? `
+                        <button onclick="openApproveProposalModal('${p._id}', '${(p.supervisor_id && p.supervisor_id.full_name || '').replace(/'/g, "\'")}', '${(hall.hall_name || '').replace(/'/g, "\'")}')" class="text-green-600 hover:text-green-800 transition-colors font-medium" title="Approve"><i class="fas fa-check mr-1"></i>Approve</button>
+                        <button onclick="openDeclineProposalModal('${p._id}')" class="text-red-500 hover:text-red-700 transition-colors font-medium" title="Decline"><i class="fas fa-times mr-1"></i>Decline</button>
+                      ` : '<span class="text-gray-400 text-xs"><i class="fas fa-check-double mr-1"></i>Resolved</span>'}
+                    </td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+            ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No proposals found</p></div>' : ''}
+          </div>`;
+      } catch(e) { showToast(e.message, 'error'); }
+    }
 
     async function renderCrud(endpoint, type) {
       const area = document.getElementById('content-area');
       try {
-        const data = await api.get(`/${endpoint}`);
+        const data = await api.get('/' + endpoint + '?limit=1000');
         let items = [];
         if (Array.isArray(data.data)) {
           items = data.data;
         } else {
           items = data.data[type + 's'] || data.data[type + 'Types'] || data.data.assignments || data.data.enrollments || [];
         }
+        currentData = items;
         let fields = getFields(type);
+        const typeIcons = { student: 'fa-user-graduate', semester: 'fa-calendar-alt', subject: 'fa-book', enrollment: 'fa-file-signature', examType: 'fa-tags', building: 'fa-building', hall: 'fa-door-open', supervisor: 'fa-user-tie' };
+        const icon = typeIcons[type] || 'fa-circle';
         area.innerHTML = `
-          <div class="mb-4 flex justify-between items-center">
-            <button onclick="openCreateModal('${type}')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Add New</button>
+          <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <button onclick="openCreateModal('${type}')" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md flex items-center space-x-2"><i class="fas fa-plus"></i><span>Add New</span></button>
+            <div class="flex items-center space-x-3 w-full sm:w-auto">
+              <div class="relative flex-1 sm:w-64">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="search-${type}" placeholder="Search ${type}s..." oninput="filterTable('search-${type}', '#table-${type}')" onkeydown="if(event.key==='Enter'){event.preventDefault();filterTable('search-${type}', '#table-${type}');}" class="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition">
+                <button type="button" onclick="clearSearch('search-${type}', filterTable, '#table-${type}')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors p-1" title="Clear search">
+                  <i class="fas fa-times text-xs"></i>
+                </button>
+              </div>
+              <button type="button" onclick="filterTable('search-${type}', '#table-${type}')" class="px-4 py-2 bg-university-600 hover:bg-university-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1">
+                <i class="fas fa-search text-xs"></i><span>Search</span>
+              </button>
+              <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 whitespace-nowrap"><i class="fas fa-list mr-1 text-gray-400"></i> ${items.length} records</span>
+            </div>
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50"><tr>${fields.map(f => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">${f.label}</th>`).join('')}<th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead>
-              <tbody class="divide-y divide-gray-200">${items.map(item => `<tr class="table-row">${fields.map(f => `<td class="px-6 py-4 text-sm text-gray-900">${getValue(item, f.key)}</td>`).join('')}<td class="px-6 py-4 text-right text-sm font-medium space-x-2"><button onclick="deleteItem('${endpoint}', '${item._id}')" class="text-red-600 hover:text-red-900">Delete</button></td></tr>`).join('')}</tbody>
+            <table id="table-${type}" class="min-w-full divide-y divide-gray-200 university-table">
+              <thead>
+                <tr>${fields.map(f => `<th class="px-6 py-3 text-left"><i class="fas ${f.icon} mr-1 opacity-70"></i>${f.label}</th>`).join('')}<th class="px-6 py-3 text-right">Actions</th></tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                ${items.map(item => `<tr class="table-row transition-colors">${fields.map(f => `<td class="px-6 py-4 text-sm text-gray-900">${getValue(item, f.key)}</td>`).join('')}<td class="px-6 py-4 text-right text-sm font-medium"><button onclick="deleteItem('${endpoint}', '${item._id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}
+              </tbody>
             </table>
-            ${items.length === 0 ? '<div class="text-center py-8 text-gray-500">No records found</div>' : ''}
-          </div>
-        `;
+            ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No records found</p></div>' : ''}
+          </div>`;
       } catch(e) { showToast(e.message, 'error'); }
     }
 
     function getFields(type) {
       const map = {
-        student: [{label:'Name',key:'full_name'},{label:'University #',key:'university_number'},{label:'Email',key:'email'},{label:'Level',key:'current_level'}],
-        semester: [{label:'Name',key:'name'},{label:'Year',key:'academic_year'},{label:'Start',key:'start_date'},{label:'End',key:'end_date'}],
-        subject: [{label:'Code',key:'subject_code'},{label:'Name',key:'subject_name'},{label:'Credits',key:'credit_hours'},{label:'Level',key:'level_year'}],
-        enrollment: [{label:'Student',key:'student_id.full_name'},{label:'Subject',key:'subject_id.subject_code'},{label:'Retake',key:'is_retake'},{label:'Status',key:'status'}],
-        examType: [{label:'Type Name',key:'type_name'}],
-        building: [{label:'Name',key:'building_name'},{label:'Location',key:'location'}],
-        hall: [{label:'Name',key:'hall_name'},{label:'Building',key:'building_id.building_name'},{label:'Capacity',key:'capacity'},{label:'Grid',key:'rows_count'}],
-        supervisor: [{label:'Name',key:'full_name'},{label:'Email',key:'email'},{label:'Phone',key:'phone'}],
+        student: [{label:'Full Name', key:'full_name', icon:'fa-user'}, {label:'University #', key:'university_number', icon:'fa-id-card'}, {label:'Email', key:'email', icon:'fa-envelope'}, {label:'Level', key:'current_level', icon:'fa-layer-group'}],
+        semester: [{label:'Name', key:'name', icon:'fa-tag'}, {label:'Year', key:'academic_year', icon:'fa-calendar'}, {label:'Start', key:'start_date', icon:'fa-play-circle'}, {label:'End', key:'end_date', icon:'fa-stop-circle'}],
+        subject: [{label:'Code', key:'subject_code', icon:'fa-barcode'}, {label:'Name', key:'subject_name', icon:'fa-book-open'}, {label:'Credits', key:'credit_hours', icon:'fa-clock'}, {label:'Level', key:'level_year', icon:'fa-layer-group'}],
+        enrollment: [{label:'Student', key:'student_id.full_name', icon:'fa-user-graduate'}, {label:'Subject', key:'subject_id.subject_code', icon:'fa-book'}, {label:'Retake', key:'is_retake', icon:'fa-redo'}, {label:'Status', key:'status', icon:'fa-check-circle'}],
+        examType: [{label:'Type Name', key:'type_name', icon:'fa-tag'}],
+        building: [{label:'Name', key:'building_name', icon:'fa-building'}, {label:'Location', key:'location', icon:'fa-map-marker-alt'}],
+        hall: [{label:'Name', key:'hall_name', icon:'fa-door-open'}, {label:'Building', key:'building_id.building_name', icon:'fa-building'}, {label:'Capacity', key:'capacity', icon:'fa-users'}, {label:'Grid', key:'rows_count', icon:'fa-th'}],
+        supervisor: [{label:'Name', key:'full_name', icon:'fa-user-tie'}, {label:'Email', key:'email', icon:'fa-envelope'}, {label:'Phone', key:'phone', icon:'fa-phone'}],
       };
       return map[type] || [];
     }
 
     function getValue(obj, path) {
-      return path.split('.').reduce((o,p) => o?.[p], obj) || '-';
+      return path.split('.').reduce((o,p) => o && o[p], obj) || '-';
     }
+    function filterTable(searchId, tableSelector) {
+      const val = document.getElementById(searchId).value.toLowerCase();
+      document.querySelectorAll(tableSelector + ' tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(val) ? '' : 'none';
+      });
+    }
+    function filterCards(searchId, cardSelector) {
+      const val = document.getElementById(searchId).value.toLowerCase();
+      document.querySelectorAll(cardSelector).forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(val) ? '' : 'none';
+      });
+    }
+    function clearSearch(searchId, filterFn, ...args) {
+      document.getElementById(searchId).value = '';
+      filterFn(searchId, ...args);
+    }
+
 
     async function renderExams() {
       const area = document.getElementById('content-area');
       try {
-        const [exams, subjects, examTypes] = await Promise.all([
-          api.get('/exams'), api.get('/subjects'), api.get('/exam-types')
-        ]);
+        const [exams, subjects, examTypes] = await Promise.all([api.get('/exams?limit=1000'), api.get('/subjects?limit=1000'), api.get('/exam-types?limit=1000')]);
         const items = exams.data.exams || [];
+        currentData = items;
         area.innerHTML = `
-          <div class="mb-4 flex justify-between items-center">
-            <button onclick="openCreateExamModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Schedule Exam</button>
+          <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <button onclick="openCreateExamModal()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md flex items-center space-x-2"><i class="fas fa-plus"></i><span>Schedule Exam</span></button>
+            <div class="flex items-center space-x-3 w-full sm:w-auto">
+              <div class="relative flex-1 sm:w-64">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="search-exams" placeholder="Search exams..." oninput="filterTable('search-exams', '#table-exams')" onkeydown="if(event.key==='Enter'){event.preventDefault();filterTable('search-exams', '#table-exams');}" class="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition">
+                <button type="button" onclick="clearSearch('search-exams', filterTable, '#table-exams')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors p-1" title="Clear search">
+                  <i class="fas fa-times text-xs"></i>
+                </button>
+              </div>
+              <button type="button" onclick="filterTable('search-exams', '#table-exams')" class="px-4 py-2 bg-university-600 hover:bg-university-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1">
+                <i class="fas fa-search text-xs"></i><span>Search</span>
+              </button>
+              <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 whitespace-nowrap"><i class="fas fa-clipboard-list mr-1 text-gray-400"></i> ${items.length} exams</span>
+            </div>
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead>
-              <tbody class="divide-y divide-gray-200">${items.map(item => `<tr class="table-row"><td class="px-6 py-4 text-sm text-gray-900">${item.subject_id?.subject_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${item.exam_type_id?.type_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${formatDate(item.exam_date)}</td><td class="px-6 py-4 text-sm text-gray-900">${item.start_time} - ${item.end_time}</td><td class="px-6 py-4 text-sm"><span class="px-2 py-1 rounded-full text-xs font-medium ${item.status==='scheduled'?'bg-blue-100 text-blue-700':item.status==='completed'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-700'}">${item.status}</span></td><td class="px-6 py-4 text-right text-sm font-medium space-x-2"><button onclick="openExamDetailsModal('${item._id}')" class="text-blue-600 hover:text-blue-900">Details</button><button onclick="deleteItem('exams', '${item._id}')" class="text-red-600 hover:text-red-900">Delete</button></td></tr>`).join('')}</tbody>
+            <table id="table-exams" class="min-w-full divide-y divide-gray-200 university-table">
+              <thead>
+                <tr>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-book mr-1 opacity-70"></i>Subject</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-tag mr-1 opacity-70"></i>Type</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-calendar mr-1 opacity-70"></i>Date</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-clock mr-1 opacity-70"></i>Time</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-info-circle mr-1 opacity-70"></i>Status</th>
+                  <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                ${items.map(item => {
+                  const statusClass = item.status==='scheduled' ? 'bg-blue-100 text-blue-700' : item.status==='completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700';
+                  return `<tr class="table-row transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${item.subject_id && item.subject_id.subject_name || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><span class="px-2 py-1 bg-gray-100 rounded-md text-xs font-medium">${item.exam_type_id && item.exam_type_id.type_name || '-'}</span></td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><i class="far fa-calendar text-gray-400 mr-1"></i>${formatDate(item.exam_date)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><i class="far fa-clock text-gray-400 mr-1"></i>${item.start_time} - ${item.end_time}</td>
+                    <td class="px-6 py-4 text-sm"><span class="px-3 py-1 rounded-full text-xs font-semibold ${statusClass}"><i class="fas fa-circle text-[8px] mr-1"></i>${item.status}</span></td>
+                    <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                      <button onclick="openExamDetailsModal('${item._id}')" class="text-blue-600 hover:text-blue-800 transition-colors" title="Details"><i class="fas fa-eye"></i></button>
+                      <button onclick="openAutoAssignModal('${item._id}')" class="text-university-600 hover:text-university-800 transition-colors" title="Auto Assign"><i class="fas fa-magic"></i></button>
+                      <button onclick="deleteItem('exams', '${item._id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
             </table>
-          </div>
-        `;
+            ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No exams scheduled</p></div>' : ''}
+          </div>`;
       } catch(e) { showToast(e.message, 'error'); }
     }
 
     async function renderSeatAssignments() {
       const area = document.getElementById('content-area');
       try {
-        const data = await api.get('/seat-assignments');
+        const data = await api.get('/seat-assignments?limit=1000');
         const items = data.data.assignments || [];
         area.innerHTML = `
-          <div class="mb-4 flex justify-between items-center">
-            <button onclick="openCreateSeatAssignmentModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Manual Assign</button>
+          <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <button onclick="openCreateSeatAssignmentModal()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md flex items-center space-x-2"><i class="fas fa-plus"></i><span>Manual Assign</span></button>
+            <div class="flex items-center space-x-3 w-full sm:w-auto">
+              <div class="relative flex-1 sm:w-64">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input type="text" id="search-seats" placeholder="Search assignments..." oninput="filterTable('search-seats', '#table-seats')" onkeydown="if(event.key==='Enter'){event.preventDefault();filterTable('search-seats', '#table-seats');}" class="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition">
+                <button type="button" onclick="clearSearch('search-seats', filterTable, '#table-seats')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors p-1" title="Clear search">
+                  <i class="fas fa-times text-xs"></i>
+                </button>
+              </div>
+              <button type="button" onclick="filterTable('search-seats', '#table-seats')" class="px-4 py-2 bg-university-600 hover:bg-university-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1">
+                <i class="fas fa-search text-xs"></i><span>Search</span>
+              </button>
+              <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 whitespace-nowrap"><i class="fas fa-chair mr-1 text-gray-400"></i> ${items.length} assignments</span>
+            </div>
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Student</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exam</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hall</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seat</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Attendance</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th></tr></thead>
-              <tbody class="divide-y divide-gray-200">${items.map(item => `<tr class="table-row"><td class="px-6 py-4 text-sm text-gray-900">${item.student_id?.full_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${item.exam_id?.subject_id?.subject_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${item.seat_id?.hall_id?.hall_name || '-'}</td><td class="px-6 py-4 text-sm text-gray-900">${item.seat_id?.seat_label || '-'}</td><td class="px-6 py-4 text-sm"><span class="px-2 py-1 rounded-full text-xs font-medium ${item.attendance_status==='present'?'bg-green-100 text-green-700':item.attendance_status==='absent'?'bg-red-100 text-red-700':'bg-gray-100 text-gray-700'}">${item.attendance_status}</span></td><td class="px-6 py-4 text-right text-sm font-medium"><button onclick="deleteItem('seat-assignments', '${item._id}')" class="text-red-600 hover:text-red-900">Delete</button></td></tr>`).join('')}</tbody>
+            <table id="table-seats" class="min-w-full divide-y divide-gray-200 university-table">
+              <thead>
+                <tr>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-user-graduate mr-1 opacity-70"></i>Student</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-book mr-1 opacity-70"></i>Exam</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-door-open mr-1 opacity-70"></i>Hall</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-chair mr-1 opacity-70"></i>Seat</th>
+                  <th class="px-6 py-3 text-left"><i class="fas fa-check-circle mr-1 opacity-70"></i>Attendance</th>
+                  <th class="px-6 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                ${items.map(item => {
+                  const attClass = item.attendance_status==='present' ? 'bg-green-100 text-green-700' : item.attendance_status==='absent' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700';
+                  return `<tr class="table-row transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${item.student_id && item.student_id.full_name || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${item.exam_id && item.exam_id.subject_id && item.exam_id.subject_id.subject_name || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${item.seat_id && item.seat_id.hall_id && item.seat_id.hall_id.hall_name || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900"><span class="font-mono font-bold text-university-600 bg-university-50 px-2 py-1 rounded">${item.seat_id && item.seat_id.seat_label || '-'}</span></td>
+                    <td class="px-6 py-4 text-sm"><span class="px-3 py-1 rounded-full text-xs font-semibold ${attClass}"><i class="fas fa-circle text-[8px] mr-1"></i>${item.attendance_status}</span></td>
+                    <td class="px-6 py-4 text-right text-sm font-medium"><button onclick="deleteItem('seat-assignments', '${item._id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete"><i class="fas fa-trash-alt"></i></button></td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
             </table>
-          </div>
-        `;
+            ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No seat assignments found</p></div>' : ''}
+          </div>`;
       } catch(e) { showToast(e.message, 'error'); }
     }
 
@@ -274,19 +486,12 @@
       if (!select) return;
       select.innerHTML = '<option value="">Loading...</option>';
       try {
-        const res = await api.get(endpoint);
+        const res = await api.get(endpoint + (endpoint.includes('?') ? '&' : '?') + 'limit=1000');
         let items = [];
-        if (Array.isArray(res.data)) {
-          items = res.data;
-        } else {
-          const key = Object.keys(res.data).find(k => Array.isArray(res.data[k]));
-          items = key ? res.data[key] : [];
-        }
-        select.innerHTML = '<option value="">-- Select --</option>' +
-          items.map(item => '<option value="' + item[valueField] + '">' + (item[labelField] || item.name || item._id) + '</option>').join('');
-      } catch (e) {
-        select.innerHTML = '<option value="">Failed to load</option>';
-      }
+        if (Array.isArray(res.data)) items = res.data;
+        else { const key = Object.keys(res.data).find(k => Array.isArray(res.data[k])); items = key ? res.data[key] : []; }
+        select.innerHTML = '<option value="">-- Select --</option>' + items.map(item => `<option value="${item[valueField]}">${item[labelField] || item.name || item._id}</option>`).join('');
+      } catch (e) { select.innerHTML = '<option value="">Failed to load</option>'; }
     }
 
     async function populateMultiSelect(selectId, endpoint, labelField, valueField) {
@@ -295,31 +500,20 @@
       if (!select) return;
       select.innerHTML = '';
       try {
-        const res = await api.get(endpoint);
+        const res = await api.get(endpoint + (endpoint.includes('?') ? '&' : '?') + 'limit=1000');
         let items = [];
-        if (Array.isArray(res.data)) {
-          items = res.data;
-        } else {
-          const key = Object.keys(res.data).find(k => Array.isArray(res.data[k]));
-          items = key ? res.data[key] : [];
-        }
-        items.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item[valueField];
-          option.textContent = item[labelField] || item.name || item._id;
-          select.appendChild(option);
-        });
-      } catch (e) {
-        select.innerHTML = '<option value="">Failed to load</option>';
-      }
+        if (Array.isArray(res.data)) items = res.data;
+        else { const key = Object.keys(res.data).find(k => Array.isArray(res.data[k])); items = key ? res.data[key] : []; }
+        items.forEach(item => { const option = document.createElement('option'); option.value = item[valueField]; option.textContent = item[labelField] || item.name || item._id; select.appendChild(option); });
+      } catch (e) { select.innerHTML = '<option value="">Failed to load</option>'; }
     }
 
     function openModal(title, html, onSave) {
-      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-title').innerHTML = `<i class="fas fa-edit text-university-500 mr-2"></i><span>${title}</span>`;
       document.getElementById('modal-body').innerHTML = html;
       document.getElementById('modal').classList.remove('hidden');
       document.getElementById('modal-footer').style.display = 'flex';
-      document.getElementById('modal-save').onclick = async function() {
+      document.getElementById('modal-save').onclick = async () => {
         try { await onSave(); closeModal(); renderView(); showToast('Saved successfully'); }
         catch(err) { showToast(err.message || 'Failed to save', 'error'); }
       };
@@ -332,200 +526,95 @@
 
     function openCreateModal(type) {
       const forms = {
-        student: '<div class="space-y-4"><input id="f-full_name" placeholder="Full Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-university_number" placeholder="University Number" class="w-full px-4 py-2 border rounded-lg"><input id="f-email" type="email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg"><input id="f-password" type="password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg"><input id="f-current_level" type="number" placeholder="Current Level" class="w-full px-4 py-2 border rounded-lg"><input id="f-phone" placeholder="Phone" class="w-full px-4 py-2 border rounded-lg"></div>',
-        semester: '<div class="space-y-4"><input id="f-name" placeholder="Name (e.g. Fall 2026)" class="w-full px-4 py-2 border rounded-lg"><input id="f-academic_year" placeholder="Academic Year" class="w-full px-4 py-2 border rounded-lg"><input id="f-start_date" type="date" class="w-full px-4 py-2 border rounded-lg"><input id="f-end_date" type="date" class="w-full px-4 py-2 border rounded-lg"></div>',
-        subject: '<div class="space-y-4"><input id="f-subject_code" placeholder="Subject Code" class="w-full px-4 py-2 border rounded-lg"><input id="f-subject_name" placeholder="Subject Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-credit_hours" type="number" placeholder="Credit Hours" class="w-full px-4 py-2 border rounded-lg"><input id="f-level_year" type="number" placeholder="Level Year" class="w-full px-4 py-2 border rounded-lg"><select id="f-semester_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Semester --</option></select></div>',
-        enrollment: '<div class="space-y-4"><select id="f-student_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Student --</option></select><select id="f-subject_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Subject --</option></select><label class="flex items-center"><input id="f-is_retake" type="checkbox" class="mr-2"> Is Retake</label></div>',
-        examType: '<div class="space-y-4"><select id="f-type_name" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="midterm">Midterm</option><option value="final">Final</option><option value="quiz">Quiz</option><option value="practical">Practical</option></select></div>',
-        building: '<div class="space-y-4"><input id="f-building_name" placeholder="Building Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-location" placeholder="Location" class="w-full px-4 py-2 border rounded-lg"></div>',
-        hall: '<div class="space-y-4"><select id="f-building_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Building --</option></select><input id="f-hall_name" placeholder="Hall Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-capacity" type="number" placeholder="Capacity" class="w-full px-4 py-2 border rounded-lg"><input id="f-rows_count" type="number" placeholder="Rows" class="w-full px-4 py-2 border rounded-lg"><input id="f-columns_count" type="number" placeholder="Columns" class="w-full px-4 py-2 border rounded-lg"></div>',
-        supervisor: '<div class="space-y-4"><input id="f-full_name" placeholder="Full Name" class="w-full px-4 py-2 border rounded-lg"><input id="f-email" type="email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg"><input id="f-phone" placeholder="Phone" class="w-full px-4 py-2 border rounded-lg"><input id="f-password" type="password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg"></div>',
+        student: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user text-gray-400 mr-1"></i> Full Name</label><input id="f-full_name" placeholder="Enter full name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-id-card text-gray-400 mr-1"></i> University Number</label><input id="f-university_number" placeholder="e.g. 20230001" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-envelope text-gray-400 mr-1"></i> Email</label><input id="f-email" type="email" placeholder="student@alepuniv.edu.sy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-lock text-gray-400 mr-1"></i> Password</label><input id="f-password" type="password" placeholder="Set password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-layer-group text-gray-400 mr-1"></i> Current Level</label><input id="f-current_level" type="number" placeholder="1-5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-phone text-gray-400 mr-1"></i> Phone</label><input id="f-phone" placeholder="+963..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
+        semester: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag text-gray-400 mr-1"></i> Name</label><input id="f-name" placeholder="e.g. Fall 2026" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar text-gray-400 mr-1"></i> Academic Year</label><input id="f-academic_year" placeholder="e.g. 2025-2026" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-play-circle text-gray-400 mr-1"></i> Start Date</label><input id="f-start_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-stop-circle text-gray-400 mr-1"></i> End Date</label><input id="f-end_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
+        subject: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-barcode text-gray-400 mr-1"></i> Subject Code</label><input id="f-subject_code" placeholder="e.g. CS101" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book-open text-gray-400 mr-1"></i> Subject Name</label><input id="f-subject_name" placeholder="Enter subject name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-clock text-gray-400 mr-1"></i> Credit Hours</label><input id="f-credit_hours" type="number" placeholder="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-layer-group text-gray-400 mr-1"></i> Level Year</label><input id="f-level_year" type="number" placeholder="1-5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar-alt text-gray-400 mr-1"></i> Semester</label><select id="f-semester_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Semester --</option></select></div></div>`,
+        enrollment: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-graduate text-gray-400 mr-1"></i> Student</label><select id="f-student_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Student --</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book text-gray-400 mr-1"></i> Subject</label><select id="f-subject_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Subject --</option></select></div><label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"><input id="f-is_retake" type="checkbox" class="mr-3 w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm font-medium text-gray-700"><i class="fas fa-redo text-gray-400 mr-1"></i> Is Retake</span></label></div>`,
+        examType: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag text-gray-400 mr-1"></i> Exam Type</label><select id="f-type_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="midterm">Midterm</option><option value="final">Final</option><option value="quiz">Quiz</option><option value="practical">Practical</option></select></div></div>`,
+        building: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-building text-gray-400 mr-1"></i> Building Name</label><input id="f-building_name" placeholder="e.g. Engineering Building" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> Location</label><input id="f-location" placeholder="Campus location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
+        hall: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-building text-gray-400 mr-1"></i> Building</label><select id="f-building_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Building --</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-gray-400 mr-1"></i> Hall Name</label><input id="f-hall_name" placeholder="e.g. Hall A" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-users text-gray-400 mr-1"></i> Capacity</label><input id="f-capacity" type="number" placeholder="Number of seats" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-arrows-alt-v text-gray-400 mr-1"></i> Rows</label><input id="f-rows_count" type="number" placeholder="Rows" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-arrows-alt-h text-gray-400 mr-1"></i> Columns</label><input id="f-columns_count" type="number" placeholder="Columns" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div></div>`,
+        supervisor: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-gray-400 mr-1"></i> Full Name</label><input id="f-full_name" placeholder="Enter full name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-envelope text-gray-400 mr-1"></i> Email</label><input id="f-email" type="email" placeholder="supervisor@alepuniv.edu.sy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-phone text-gray-400 mr-1"></i> Phone</label><input id="f-phone" placeholder="+963..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-lock text-gray-400 mr-1"></i> Password</label><input id="f-password" type="password" placeholder="Set password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
       };
 
-      openModal('Create ' + type, forms[type], async function() {
+      openModal('Create ' + type.charAt(0).toUpperCase() + type.slice(1), forms[type], async () => {
         const body = {};
         const missing = [];
-        document.querySelectorAll('#modal-body input, #modal-body select').forEach(function(el) {
+        document.querySelectorAll('#modal-body input, #modal-body select').forEach(el => {
           const field = el.id.replace('f-', '');
-          if (el.type === 'checkbox') {
-            body[field] = el.checked;
-          } else if (el.type === 'number') {
-            body[field] = parseInt(el.value) || 0;
-          } else {
-            body[field] = el.value.trim();
-          }
-          if (el.tagName === 'SELECT' && el.value === '') {
-            missing.push(field);
-          } else if (el.type !== 'checkbox' && el.type !== 'number' && !el.value.trim()) {
-            missing.push(field);
-          }
+          if (el.type === 'checkbox') body[field] = el.checked;
+          else if (el.type === 'number') body[field] = parseInt(el.value) || 0;
+          else body[field] = el.value.trim();
+          if (el.tagName === 'SELECT' && el.value === '') missing.push(field);
+          else if (el.type !== 'checkbox' && el.type !== 'number' && !el.value.trim()) missing.push(field);
         });
-
-        if (missing.length > 0) {
-          throw new Error('Please fill in: ' + missing.join(', '));
-        }
-
+        if (missing.length > 0) throw new Error('Please fill in: ' + missing.join(', '));
         const endpoint = type === 'examType' ? 'exam-types' : type + 's';
         await api.post('/' + endpoint, body);
       });
 
       if (type === 'subject') populateSelect('f-semester_id', '/semesters', 'name');
-      if (type === 'enrollment') {
-        populateSelect('f-student_id', '/students', 'full_name');
-        populateSelect('f-subject_id', '/subjects', 'subject_name');
-      }
+      if (type === 'enrollment') { populateSelect('f-student_id', '/students', 'full_name'); populateSelect('f-subject_id', '/subjects', 'subject_name'); }
       if (type === 'hall') populateSelect('f-building_id', '/buildings', 'building_name');
     }
 
-function openCreateExamModal() {
-  openModal('Schedule Exam', 
-    '<div class="space-y-4">' +
-      '<select id="f-subject_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Subject --</option></select>' +
-      '<select id="f-exam_type_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Exam Type --</option></select>' +
-      '<input id="f-exam_date" type="date" class="w-full px-4 py-2 border rounded-lg">' +
-      '<input id="f-start_time" placeholder="Start Time (HH:MM)" class="w-full px-4 py-2 border rounded-lg">' +
-      '<input id="f-end_time" placeholder="End Time (HH:MM)" class="w-full px-4 py-2 border rounded-lg">' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-24"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div>' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-24"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div>' +
-      '<div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700">Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div>' +
-    '</div>', 
-    async function() {
-      const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
-      const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
-      
-      if (hallIds.length === 0) throw new Error('Please select at least one hall');
-      if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
-      if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
-
-      const headSupervisors = [];
-      for (let i = 0; i < hallIds.length; i++) {
-        const hallId = hallIds[i];
-        const select = document.getElementById('head-for-' + hallId);
-        const headId = select ? select.value : '';
-        if (!headId) throw new Error('Please select a head supervisor for all halls');
-        if (!supervisorIds.includes(headId)) throw new Error('Head supervisor must be from the selected pool');
-        headSupervisors.push({ hall_id: hallId, supervisor_id: headId });
-      }
-
-      const headIds = headSupervisors.map(function(h) { return h.supervisor_id; });
-      if (new Set(headIds).size !== headIds.length) {
-        throw new Error('Each hall must have a different head supervisor');
-      }
-
-      await api.post('/exams', {
-        subject_id: document.getElementById('f-subject_id').value,
-        exam_type_id: document.getElementById('f-exam_type_id').value,
-        exam_date: document.getElementById('f-exam_date').value,
-        start_time: document.getElementById('f-start_time').value,
-        end_time: document.getElementById('f-end_time').value,
-        hall_ids: hallIds,
-        supervisor_ids: supervisorIds,
-        head_supervisors: headSupervisors,
-      });
-    }
-  );
-  
-  populateSelect('f-subject_id', '/subjects', 'subject_name');
-  populateSelect('f-exam_type_id', '/exam-types', 'type_name');
-  populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
-  populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
-  
-  setTimeout(function() {
-    const updateHeadSection = function() {
-      const hallSelect = document.getElementById('f-hall_ids');
-      const supSelect = document.getElementById('f-supervisor_ids');
-      const section = document.getElementById('head-supervisors-section');
-      const list = document.getElementById('head-supervisors-list');
-      
-      const halls = Array.from(hallSelect.selectedOptions);
-      const supervisors = Array.from(supSelect.selectedOptions);
-      
-      if (halls.length === 0 || supervisors.length === 0) {
-        section.classList.add('hidden');
-        return;
-      }
-      
-      section.classList.remove('hidden');
-      list.innerHTML = halls.map(function(hall) {
-        return '<div class="flex items-center space-x-3"><span class="text-sm font-medium text-gray-700 w-32 truncate">' + hall.text + '</span><select id="head-for-' + hall.value + '" class="flex-1 px-3 py-2 border rounded-lg bg-white text-sm"><option value="">-- Select Head --</option>' + supervisors.map(function(sup) { return '<option value="' + sup.value + '">' + sup.text + '</option>'; }).join('') + '</select></div>';
-      }).join('');
-    };
-
-    const hallEl = document.getElementById('f-hall_ids');
-    const supEl = document.getElementById('f-supervisor_ids');
-    if (hallEl) hallEl.addEventListener('change', updateHeadSection);
-    if (supEl) supEl.addEventListener('change', updateHeadSection);
-  }, 100);
-}
-
-    function openAutoAssignModal(examId) {
-      openModal('Auto Assign Exam', '<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-32"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border rounded-lg bg-white h-32"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p></div><div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700">Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div></div>', async function() {
-        const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
-        const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(function(o) { return o.value; }).filter(Boolean);
-        
-        if (hallIds.length === 0) throw new Error('Please select at least one hall');
-        if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
-        if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
-
-        const headSupervisors = [];
-        for (let i = 0; i < hallIds.length; i++) {
-          const hallId = hallIds[i];
-          const select = document.getElementById('head-for-' + hallId);
-          const headId = select ? select.value : '';
-          if (!headId) throw new Error('Please select a head supervisor for all halls');
-          if (!supervisorIds.includes(headId)) throw new Error('Head supervisor must be from the selected pool');
-          headSupervisors.push({ hall_id: hallId, supervisor_id: headId });
-        }
-
-        const headIds = headSupervisors.map(function(h) { return h.supervisor_id; });
-        if (new Set(headIds).size !== headIds.length) {
-          throw new Error('Each hall must have a different head supervisor');
-        }
-
-        await api.post('/exams/' + examId + '/assign-halls', { hall_ids: hallIds });
-        
-        try {
-          await api.post('/exams/' + examId + '/auto-assign-seats', { hall_ids: hallIds });
-        } catch (err) {
-          if (err.message && (err.message.includes('already assigned') || err.message.includes('already have seats') || err.message.includes('No unassigned'))) {
-            showToast('Note: All students already have seats', 'error');
-          } else {
-            throw err;
+    function openCreateExamModal() {
+      openModal('Schedule Exam', 
+        `<div class="space-y-4">
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book text-gray-400 mr-1"></i> Subject</label><select id="f-subject_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Subject --</option></select></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag text-gray-400 mr-1"></i> Exam Type</label><select id="f-exam_type_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Exam Type --</option></select></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar text-gray-400 mr-1"></i> Exam Date</label><input id="f-exam_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div>
+          <div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-play text-gray-400 mr-1"></i> Start Time</label><input id="f-start_time" placeholder="HH:MM" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-stop text-gray-400 mr-1"></i> End Time</label><input id="f-end_time" placeholder="HH:MM" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-indigo-500 mr-1"></i> Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-24 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-24 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div>
+          <div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700"><i class="fas fa-crown text-yellow-500 mr-1"></i> Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div>
+        </div>`, 
+        async () => {
+          const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(o => o.value).filter(Boolean);
+          const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(o => o.value).filter(Boolean);
+          if (hallIds.length === 0) throw new Error('Please select at least one hall');
+          if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
+          if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
+          const headSupervisors = [];
+          for (let i = 0; i < hallIds.length; i++) {
+            const hallId = hallIds[i];
+            const select = document.getElementById('head-for-' + hallId);
+            const headId = select ? select.value : '';
+            if (!headId) throw new Error('Please select a head supervisor for all halls');
+            if (!supervisorIds.includes(headId)) throw new Error('Head supervisor must be from the selected pool');
+            headSupervisors.push({ hall_id: hallId, supervisor_id: headId });
           }
+          const headIds = headSupervisors.map(h => h.supervisor_id);
+          if (new Set(headIds).size !== headIds.length) {
+            throw new Error('Each hall must have a different head supervisor');
+          }
+          await api.post('/exams', {
+            subject_id: document.getElementById('f-subject_id').value,
+            exam_type_id: document.getElementById('f-exam_type_id').value,
+            exam_date: document.getElementById('f-exam_date').value,
+            start_time: document.getElementById('f-start_time').value,
+            end_time: document.getElementById('f-end_time').value,
+            hall_ids: hallIds,
+            supervisor_ids: supervisorIds,
+            head_supervisors: headSupervisors,
+          });
         }
-        
-        await api.post('/exams/' + examId + '/auto-assign-supervisors', { 
-          supervisor_ids: supervisorIds, 
-          head_supervisors: headSupervisors 
-        });
-
-        showToast('Exam auto-assigned successfully!');
-      });
-
+      );
+      populateSelect('f-subject_id', '/subjects', 'subject_name');
+      populateSelect('f-exam_type_id', '/exam-types', 'type_name');
       populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
       populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
-      
-      setTimeout(function() {
-        const updateHeadSection = function() {
+      setTimeout(() => {
+        const updateHeadSection = () => {
           const hallSelect = document.getElementById('f-hall_ids');
           const supSelect = document.getElementById('f-supervisor_ids');
           const section = document.getElementById('head-supervisors-section');
           const list = document.getElementById('head-supervisors-list');
-          
           const halls = Array.from(hallSelect.selectedOptions);
           const supervisors = Array.from(supSelect.selectedOptions);
-          
-          if (halls.length === 0 || supervisors.length === 0) {
-            section.classList.add('hidden');
-            return;
-          }
-          
+          if (halls.length === 0 || supervisors.length === 0) { section.classList.add('hidden'); return; }
           section.classList.remove('hidden');
-          list.innerHTML = halls.map(function(hall) {
-            return '<div class="flex items-center space-x-3"><span class="text-sm font-medium text-gray-700 w-32 truncate">' + hall.text + '</span><select id="head-for-' + hall.value + '" class="flex-1 px-3 py-2 border rounded-lg bg-white text-sm"><option value="">-- Select Head --</option>' + supervisors.map(function(sup) { return '<option value="' + sup.value + '">' + sup.text + '</option>'; }).join('') + '</select></div>';
-          }).join('');
+          list.innerHTML = halls.map(hall => `<div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg"><span class="text-sm font-medium text-gray-700 w-32 truncate"><i class="fas fa-door-open text-indigo-400 mr-1"></i>${hall.text}</span><select id="head-for-${hall.value}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Head --</option>${supervisors.map(sup => `<option value="${sup.value}">${sup.text}</option>`).join('')}</select></div>`).join('');
         };
-
         const hallEl = document.getElementById('f-hall_ids');
         const supEl = document.getElementById('f-supervisor_ids');
         if (hallEl) hallEl.addEventListener('change', updateHeadSection);
@@ -533,222 +622,151 @@ function openCreateExamModal() {
       }, 100);
     }
 
-function openCreateSeatAssignmentModal() {
-  var selectedStudentIds = [];
-  
-  openModal('Bulk Seat Assignment', 
-    '<div class="space-y-5">' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Exam</label><select id="f-exam_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">-- Select Exam --</option></select></div>' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Select Hall</label><select id="f-hall_id" class="w-full px-4 py-2 border rounded-lg bg-white" disabled><option value="">-- Select exam first --</option></select><p id="seat-count" class="text-xs text-gray-500 mt-1 hidden"></p></div>' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-2">Select Students <span id="student-counter" class="text-xs font-normal text-gray-500">(0 selected)</span></label><div id="student-grid" class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto p-1"><p class="text-sm text-gray-500 col-span-2">Loading students...</p></div></div>' +
-    '</div>', 
-    async function() {
-      const examId = document.getElementById('f-exam_id').value;
-      const hallId = document.getElementById('f-hall_id').value;
-      
-      if (!examId) throw new Error('Please select an exam');
-      if (!hallId) throw new Error('Please select a hall');
-      if (selectedStudentIds.length === 0) throw new Error('Please select at least one student');
-      
-      const res = await api.post('/seat-assignments/bulk', {
-        student_ids: selectedStudentIds,
-        exam_id: examId,
-        hall_id: hallId,
-      });
-      
-      const data = res.data;
-      var msg = 'Assigned ' + data.assignedCount + ' students';
-      if (data.skippedCount > 0) msg += ' (' + data.skippedCount + ' already had seats)';
-      showToast(msg);
-    }
-  );
-  
-  // Load exams
-  const examSelect = document.getElementById('f-exam_id');
-  api.get('/exams').then(function(res) {
-    const exams = res.data.exams || [];
-    examSelect.innerHTML = '<option value="">-- Select Exam --</option>' +
-      exams.map(function(exam) {
-        var subject = exam.subject_id ? exam.subject_id.subject_name : 'Unknown';
-        var type = exam.exam_type_id ? exam.exam_type_id.type_name : 'Exam';
-        var date = formatDate(exam.exam_date);
-        return '<option value="' + exam._id + '">' + subject + ' - ' + type + ' (' + date + ')</option>';
-      }).join('');
-  }).catch(function() {
-    examSelect.innerHTML = '<option value="">Failed to load exams</option>';
-  });
-  
-  // Load students as clickable cards
-  const studentGrid = document.getElementById('student-grid');
-  api.get('/students?limit=1000').then(function(res) {
-    const students = (res.data.students || []).sort(function(a, b) { return a.current_level - b.current_level || a.full_name.localeCompare(b.full_name); });
-    if (students.length === 0) {
-      studentGrid.innerHTML = '<p class="text-sm text-gray-500 col-span-2">No students found</p>';
-      return;
-    }
-    
-    studentGrid.innerHTML = students.map(function(s) {
-      return '<div class="student-card cursor-pointer border-2 border-gray-200 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50 transition select-none" data-id="' + s._id + '">' +
-        '<div class="flex items-center space-x-3">' +
-          '<div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">' + (s.full_name ? s.full_name.charAt(0).toUpperCase() : '?') + '</div>' +
-          '<div class="min-w-0">' +
-            '<p class="text-sm font-medium text-gray-900 truncate">' + s.full_name + '</p>' +
-            '<p class="text-xs text-gray-500">' + s.university_number + ' • Level ' + s.current_level + '</p>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    
-    // Add click handlers
-    studentGrid.querySelectorAll('.student-card').forEach(function(card) {
-      card.addEventListener('click', function() {
-        var id = this.getAttribute('data-id');
-        if (selectedStudentIds.includes(id)) {
-          selectedStudentIds = selectedStudentIds.filter(function(sid) { return sid !== id; });
-          this.classList.remove('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-200');
-          this.classList.add('border-gray-200');
-        } else {
-          selectedStudentIds.push(id);
-          this.classList.remove('border-gray-200');
-          this.classList.add('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-200');
+    function openAutoAssignModal(examId) {
+      openModal('Auto Assign Exam', `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-indigo-500 mr-1"></i> Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-32 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-32 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div><div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700"><i class="fas fa-crown text-yellow-500 mr-1"></i> Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div></div>`, async () => {
+        const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(o => o.value).filter(Boolean);
+        const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(o => o.value).filter(Boolean);
+        if (hallIds.length === 0) throw new Error('Please select at least one hall');
+        if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
+        if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
+        const headSupervisors = [];
+        for (const hallId of hallIds) {
+          const select = document.getElementById('head-for-' + hallId);
+          const headId = select && select.value;
+          if (!headId) throw new Error('Please select a head supervisor for all halls');
+          if (!supervisorIds.includes(headId)) throw new Error('Head supervisor must be from the selected pool');
+          headSupervisors.push({ hall_id: hallId, supervisor_id: headId });
         }
-        document.getElementById('student-counter').textContent = '(' + selectedStudentIds.length + ' selected)';
+        const headIds = headSupervisors.map(h => h.supervisor_id);
+        if (new Set(headIds).size !== headIds.length) throw new Error('Each hall must have a different head supervisor');
+        await api.post('/exams/' + examId + '/assign-halls', { hall_ids: hallIds });
+        try { await api.post('/exams/' + examId + '/auto-assign-seats', { hall_ids: hallIds }); } catch (err) { if (err.message && (err.message.includes('already assigned') || err.message.includes('already have seats') || err.message.includes('No unassigned'))) { showToast('Note: All students already have seats', 'error'); } else { throw err; } }
+        await api.post('/exams/' + examId + '/auto-assign-supervisors', { supervisor_ids: supervisorIds, head_supervisors: headSupervisors });
+        showToast('Exam auto-assigned successfully!');
       });
-    });
-  }).catch(function() {
-    studentGrid.innerHTML = '<p class="text-sm text-red-500 col-span-2">Failed to load students</p>';
-  });
-  
-  // When exam changes, load halls
-  examSelect.addEventListener('change', async function() {
-    const hallSelect = document.getElementById('f-hall_id');
-    const seatCountP = document.getElementById('seat-count');
-    const examId = this.value;
-    
-    if (!examId) {
-      hallSelect.innerHTML = '<option value="">-- Select exam first --</option>';
-      hallSelect.disabled = true;
-      seatCountP.classList.add('hidden');
-      return;
+      populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
+      populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
+      setTimeout(() => {
+        const updateHeadSection = () => {
+          const hallSelect = document.getElementById('f-hall_ids');
+          const supSelect = document.getElementById('f-supervisor_ids');
+          const section = document.getElementById('head-supervisors-section');
+          const list = document.getElementById('head-supervisors-list');
+          const halls = Array.from(hallSelect.selectedOptions);
+          const supervisors = Array.from(supSelect.selectedOptions);
+          if (halls.length === 0 || supervisors.length === 0) { section.classList.add('hidden'); return; }
+          section.classList.remove('hidden');
+          list.innerHTML = halls.map(hall => `<div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg"><span class="text-sm font-medium text-gray-700 w-32 truncate"><i class="fas fa-door-open text-indigo-400 mr-1"></i>${hall.text}</span><select id="head-for-${hall.value}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Head --</option>${supervisors.map(sup => `<option value="${sup.value}">${sup.text}</option>`).join('')}</select></div>`).join('');
+        };
+        document.getElementById('f-hall_ids').addEventListener('change', updateHeadSection);
+        document.getElementById('f-supervisor_ids').addEventListener('change', updateHeadSection);
+      }, 100);
     }
-    
-    hallSelect.innerHTML = '<option value="">Loading halls...</option>';
-    hallSelect.disabled = true;
-    
-    try {
-      const res = await api.get('/exams/' + examId + '/details');
-      const halls = res.data.halls || [];
-      
-      if (halls.length === 0) {
-        hallSelect.innerHTML = '<option value="">No halls assigned to this exam</option>';
-        return;
-      }
-      
-      hallSelect.innerHTML = '<option value="">-- Select Hall --</option>' +
-        halls.map(function(h) {
-          var hallName = h.hall_id ? h.hall_id.hall_name : 'Unknown';
-          var capacity = h.hall_id ? h.hall_id.capacity : '?';
-          return '<option value="' + h.hall_id._id + '" data-capacity="' + capacity + '">' + hallName + ' (Capacity: ' + capacity + ')</option>';
-        }).join('');
-      hallSelect.disabled = false;
-      
-      // Show seat availability when hall changes
-      hallSelect.addEventListener('change', async function() {
-        const hallId = this.value;
-        if (!hallId) {
-          seatCountP.classList.add('hidden');
-          return;
+
+    function openCreateSeatAssignmentModal() {
+      var selectedStudentIds = [];
+      openModal('Bulk Seat Assignment', 
+        `<div class="space-y-5">
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-clipboard-list text-gray-400 mr-1"></i> Select Exam</label><select id="f-exam_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Exam --</option></select></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-gray-400 mr-1"></i> Select Hall</label><select id="f-hall_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition" disabled><option value="">-- Select exam first --</option></select><p id="seat-count" class="text-xs text-gray-500 mt-1 hidden"></p></div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-medium text-gray-700"><i class="fas fa-user-graduate text-gray-400 mr-1"></i> Select Students <span id="student-counter" class="text-xs font-normal text-gray-500">(0 selected)</span></label>
+            </div>
+            <div class="flex items-center space-x-2 mb-3">
+            <div class="relative flex-1">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+              <input type="text" id="search-students-modal" placeholder="Search students by name or university number..." oninput="filterCards('search-students-modal', '.student-card')" onkeydown="if(event.key==='Enter'){event.preventDefault();filterCards('search-students-modal', '.student-card');}" class="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition">
+              <button type="button" onclick="clearSearch('search-students-modal', filterCards, '.student-card')" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors p-1" title="Clear search">
+                <i class="fas fa-times text-xs"></i>
+              </button>
+            </div>
+            <button type="button" onclick="filterCards('search-students-modal', '.student-card')" class="px-4 py-2 bg-university-600 hover:bg-university-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors flex items-center space-x-1">
+              <i class="fas fa-search text-xs"></i><span>Search</span>
+            </button>
+          </div>
+            <div id="student-grid" class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto p-1"><p class="text-sm text-gray-500 col-span-2">Loading students...</p></div>
+          </div>
+        </div>`, 
+        async () => {
+          const examId = document.getElementById('f-exam_id').value;
+          const hallId = document.getElementById('f-hall_id').value;
+          if (!examId) throw new Error('Please select an exam');
+          if (!hallId) throw new Error('Please select a hall');
+          if (selectedStudentIds.length === 0) throw new Error('Please select at least one student');
+          const res = await api.post('/seat-assignments/bulk', { student_ids: selectedStudentIds, exam_id: examId, hall_id: hallId });
+          const data = res.data;
+          var msg = 'Assigned ' + data.assignedCount + ' students';
+          if (data.skippedCount > 0) msg += ' (' + data.skippedCount + ' already had seats)';
+          showToast(msg);
         }
+      );
+      const examSelect = document.getElementById('f-exam_id');
+      api.get('/exams?limit=1000').then(res => {
+        const exams = res.data.exams || [];
+        examSelect.innerHTML = '<option value="">-- Select Exam --</option>' + exams.map(exam => { var subject = exam.subject_id ? exam.subject_id.subject_name : 'Unknown'; var type = exam.exam_type_id ? exam.exam_type_id.type_name : 'Exam'; var date = formatDate(exam.exam_date); return `<option value="${exam._id}">${subject} - ${type} (${date})</option>`; }).join('');
+      }).catch(() => { examSelect.innerHTML = '<option value="">Failed to load exams</option>'; });
+      const studentGrid = document.getElementById('student-grid');
+      api.get('/students?limit=1000').then(res => {
+        const students = (res.data.students || []).sort((a, b) => a.current_level - b.current_level || a.full_name.localeCompare(b.full_name));
+        if (students.length === 0) { studentGrid.innerHTML = '<p class="text-sm text-gray-500 col-span-2">No students found</p>'; return; }
+        studentGrid.innerHTML = students.map(s => `<div class="student-card cursor-pointer border-2 border-gray-200 rounded-lg p-3 hover:border-indigo-300 hover:bg-indigo-50 transition select-none" data-id="${s._id}"><div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">${s.full_name ? s.full_name.charAt(0).toUpperCase() : '?'}</div><div class="min-w-0"><p class="text-sm font-medium text-gray-900 truncate">${s.full_name}</p><p class="text-xs text-gray-500">${s.university_number} &bull; Level ${s.current_level}</p></div></div></div>`).join('');
+        studentGrid.querySelectorAll('.student-card').forEach(card => {
+          card.addEventListener('click', function() {
+            var id = this.getAttribute('data-id');
+            if (selectedStudentIds.includes(id)) {
+              selectedStudentIds = selectedStudentIds.filter(sid => sid !== id);
+              this.classList.remove('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-200');
+              this.classList.add('border-gray-200');
+            } else {
+              selectedStudentIds.push(id);
+              this.classList.remove('border-gray-200');
+              this.classList.add('border-indigo-500', 'bg-indigo-50', 'ring-2', 'ring-indigo-200');
+            }
+            document.getElementById('student-counter').textContent = '(' + selectedStudentIds.length + ' selected)';
+          });
+        });
+      }).catch(() => { studentGrid.innerHTML = '<p class="text-sm text-red-500 col-span-2">Failed to load students</p>'; });
+      examSelect.addEventListener('change', async () => {
+        const hallSelect = document.getElementById('f-hall_id');
+        const seatCountP = document.getElementById('seat-count');
+        const examId = examSelect.value;
+        if (!examId) { hallSelect.innerHTML = '<option value="">-- Select exam first --</option>'; hallSelect.disabled = true; seatCountP.classList.add('hidden'); return; }
+        hallSelect.innerHTML = '<option value="">Loading halls...</option>'; hallSelect.disabled = true;
         try {
-          const seatRes = await api.get('/seats?hall_id=' + hallId);
-          const totalSeats = (seatRes.data.seats || []).length;
-          seatCountP.textContent = 'Total seats in hall: ' + totalSeats;
-          seatCountP.classList.remove('hidden');
-        } catch(e) {
-          seatCountP.classList.add('hidden');
-        }
+          const res = await api.get('/exams/' + examId + '/details');
+          const halls = res.data.halls || [];
+          if (halls.length === 0) { hallSelect.innerHTML = '<option value="">No halls assigned to this exam</option>'; return; }
+          hallSelect.innerHTML = '<option value="">-- Select Hall --</option>' + halls.map(h => { var hallName = h.hall_id ? h.hall_id.hall_name : 'Unknown'; var capacity = h.hall_id ? h.hall_id.capacity : '?'; return `<option value="${h.hall_id._id}" data-capacity="${capacity}">${hallName} (Capacity: ${capacity})</option>`; }).join('');
+          hallSelect.disabled = false;
+          hallSelect.addEventListener('change', async () => {
+            const hallId = hallSelect.value;
+            if (!hallId) { seatCountP.classList.add('hidden'); return; }
+            try { const seatRes = await api.get('/seats?hall_id=' + hallId + '&limit=1000'); const totalSeats = (seatRes.data.seats || []).length; seatCountP.textContent = 'Total seats in hall: ' + totalSeats; seatCountP.classList.remove('hidden'); } catch(e) { seatCountP.classList.add('hidden'); }
+          });
+        } catch(e) { hallSelect.innerHTML = '<option value="">Failed to load halls</option>'; }
       });
-      
-    } catch(e) {
-      hallSelect.innerHTML = '<option value="">Failed to load halls</option>';
     }
-  });
-}
 
     async function deleteItem(endpoint, id) {
-      const warnings = {
-        'students': 'This will also delete all enrollments, seat assignments, and notifications for this student.',
-        'subjects': 'This will also delete all exams, enrollments, seat assignments, and notifications for this subject.',
-        'exams': 'This will also delete all seat assignments, supervisor assignments, and notifications for this exam.',
-        'halls': 'This will also delete all seats in this hall.',
-        'seat-assignments': 'This will also delete related notifications.',
-      };
-      
-      var warning = warnings[endpoint] || '';
-      var msg = warning ? 'Are you sure?\n\n' + warning + '\n\nThis action cannot be undone.' : 'Are you sure?';
-        
+      const warnings = { 'students': 'This will also delete all enrollments, seat assignments, and notifications for this student.', 'subjects': 'This will also delete all exams, enrollments, seat assignments, and notifications for this subject.', 'exams': 'This will also delete all seat assignments, supervisor assignments, and notifications for this exam.', 'halls': 'This will also delete all seats in this hall.', 'seat-assignments': 'This will also delete related notifications.' };
+      const warning = warnings[endpoint] || '';
+      const msg = warning ? 'Are you sure?\n\n' + warning + '\n\nThis action cannot be undone.' : 'Are you sure?';
       if (!confirm(msg)) return;
-      
-      try { 
-        await api.delete('/' + endpoint + '/' + id); 
-        renderView(); 
-        showToast('Deleted successfully'); 
-      }
-      catch(err) { 
-        showToast(err.message, 'error'); 
-      }
+      try { await api.delete('/' + endpoint + '/' + id); renderView(); showToast('Deleted successfully'); }
+      catch(err) { showToast(err.message, 'error'); }
     }
 
     async function openExamDetailsModal(examId) {
       try {
-        var res = await api.get('/exams/' + examId + '/details');
-        var data = res.data;
-        var exam = data.exam;
-        var halls = data.halls || [];
-        var seats = data.seatAssignments || [];
-        var supervisors = data.supervisorAssignments || [];
-
-        var html = 
-          '<div class="space-y-6">' +
-            '<div class="bg-gray-50 rounded-lg p-4">' +
-              '<h4 class="font-semibold text-gray-900 mb-2">Exam Information</h4>' +
-              '<div class="grid grid-cols-2 gap-4 text-sm">' +
-                '<div><span class="text-gray-500">Subject:</span> ' + (exam && exam.subject_id ? exam.subject_id.subject_name : '-') + '</div>' +
-                '<div><span class="text-gray-500">Type:</span> ' + (exam && exam.exam_type_id ? exam.exam_type_id.type_name : '-') + '</div>' +
-                '<div><span class="text-gray-500">Date:</span> ' + formatDate(exam ? exam.exam_date : '') + '</div>' +
-                '<div><span class="text-gray-500">Time:</span> ' + (exam ? exam.start_time : '-') + ' - ' + (exam ? exam.end_time : '-') + '</div>' +
-                '<div><span class="text-gray-500">Status:</span> <span class="px-2 py-0.5 rounded-full text-xs font-medium ' + (exam && exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' : exam && exam.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700') + '">' + (exam ? exam.status : '-') + '</span></div>' +
-              '</div>' +
-            '</div>' +
-            '<div>' +
-              '<h4 class="font-semibold text-gray-900 mb-2">Halls (' + halls.length + ')</h4>' +
-              (halls.length === 0 ? '<p class="text-sm text-gray-500">No halls assigned yet.</p>' : '<div class="flex flex-wrap gap-2">' + halls.map(function(h) { return '<span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">' + (h.hall_id ? h.hall_id.hall_name : 'Unknown') + '</span>'; }).join('') + '</div>') +
-            '</div>' +
-            '<div>' +
-              '<h4 class="font-semibold text-gray-900 mb-2">Student Seat Assignments (' + seats.length + ')</h4>' +
-              (seats.length === 0 ? '<p class="text-sm text-gray-500">No students assigned yet.</p>' : 
-                '<div class="max-h-48 overflow-y-auto border rounded-lg">' +
-                  '<table class="min-w-full divide-y divide-gray-200 text-sm">' +
-                    '<thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Student</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">University #</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hall</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Seat</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th></tr></thead>' +
-                    '<tbody class="divide-y divide-gray-200">' + seats.map(function(s) { return '<tr><td class="px-4 py-2">' + (s.student_id ? s.student_id.full_name : '-') + '</td><td class="px-4 py-2 text-gray-500">' + (s.student_id ? s.student_id.university_number : '-') + '</td><td class="px-4 py-2 text-sm font-medium text-gray-700">' + (s.seat_id && s.seat_id.hall_id ? s.seat_id.hall_id.hall_name : '-') + '</td><td class="px-4 py-2 font-medium text-indigo-600">' + (s.seat_id ? s.seat_id.seat_label : '-') + '</td><td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs ' + (s.attendance_status === 'present' ? 'bg-green-100 text-green-700' : s.attendance_status === 'absent' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700') + '">' + s.attendance_status + '</span></td></tr>'; }).join('') + '</tbody>' +
-                  '</table>' +
-                '</div>'
-              ) +
-            '</div>' +
-            '<div>' +
-              '<h4 class="font-semibold text-gray-900 mb-2">Supervisor Assignments (' + supervisors.length + ')</h4>' +
-              (supervisors.length === 0 ? '<p class="text-sm text-gray-500">No supervisors assigned yet.</p>' : 
-                '<div class="max-h-48 overflow-y-auto border rounded-lg">' +
-                  '<table class="min-w-full divide-y divide-gray-200 text-sm">' +
-                    '<thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Supervisor</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Role</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hall</th></tr></thead>' +
-                    '<tbody class="divide-y divide-gray-200">' + supervisors.map(function(s) { return '<tr><td class="px-4 py-2">' + (s.supervisor_id ? s.supervisor_id.full_name : '-') + '</td><td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs ' + (s.role === 'head' ? 'bg-purple-100 text-purple-700' : 'bg-emerald-100 text-emerald-700') + ' font-medium capitalize">' + s.role + '</span></td><td class="px-4 py-2 text-gray-500">' + (s.exam_hall_id && s.exam_hall_id.hall_id ? s.exam_hall_id.hall_id.hall_name : '-') + '</td></tr>'; }).join('') + '</tbody>' +
-                  '</table>' +
-                '</div>'
-              ) +
-            '</div>' +
-          '</div>';
-
-        document.getElementById('modal-title').textContent = 'Exam Details';
+        const res = await api.get('/exams/' + examId + '/details');
+        const data = res.data;
+        const exam = data.exam;
+        const halls = data.halls || [];
+        const seats = data.seatAssignments || [];
+        const supervisors = data.supervisorAssignments || [];
+        const html = `<div class="space-y-6"><div class="bg-gradient-to-r from-university-50 to-blue-50 rounded-xl p-5 border border-university-100"><h4 class="font-bold text-gray-900 mb-3 flex items-center"><i class="fas fa-info-circle text-university-500 mr-2"></i>Exam Information</h4><div class="grid grid-cols-2 gap-4 text-sm"><div class="flex items-center space-x-2"><i class="fas fa-book text-university-400 w-4"></i><span class="text-gray-500">Subject:</span> <span class="font-medium">${exam && exam.subject_id && exam.subject_id.subject_name || '-'}</span></div><div class="flex items-center space-x-2"><i class="fas fa-tag text-university-400 w-4"></i><span class="text-gray-500">Type:</span> <span class="font-medium">${exam && exam.exam_type_id && exam.exam_type_id.type_name || '-'}</span></div><div class="flex items-center space-x-2"><i class="far fa-calendar text-university-400 w-4"></i><span class="text-gray-500">Date:</span> <span class="font-medium">${formatDate(exam && exam.exam_date)}</span></div><div class="flex items-center space-x-2"><i class="far fa-clock text-university-400 w-4"></i><span class="text-gray-500">Time:</span> <span class="font-medium">${exam && exam.start_time || '-'} - ${exam && exam.end_time || '-'}</span></div><div class="flex items-center space-x-2"><i class="fas fa-info-circle text-university-400 w-4"></i><span class="text-gray-500">Status:</span> <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${exam && exam.status === 'scheduled' ? 'bg-blue-100 text-blue-700' : exam && exam.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}">${exam && exam.status || '-'}</span></div></div></div><div><h4 class="font-bold text-gray-900 mb-3 flex items-center"><i class="fas fa-door-open text-indigo-500 mr-2"></i>Halls (${halls.length})</h4>${halls.length === 0 ? '<p class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg"><i class="fas fa-inbox mr-1"></i>No halls assigned yet.</p>' : '<div class="flex flex-wrap gap-2">' + halls.map(h => `<span class="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100 flex items-center"><i class="fas fa-door-open mr-2"></i>${h.hall_id && h.hall_id.hall_name || 'Unknown'}</span>`).join('') + '</div>'}</div><div><h4 class="font-bold text-gray-900 mb-3 flex items-center"><i class="fas fa-chair text-cyan-500 mr-2"></i>Student Seat Assignments (${seats.length})</h4>${seats.length === 0 ? '<p class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg"><i class="fas fa-inbox mr-1"></i>No students assigned yet.</p>' : '<div class="max-h-48 overflow-y-auto border border-gray-200 rounded-xl"><table class="min-w-full divide-y divide-gray-200 text-sm"><thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-user mr-1"></i>Student</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-id-card mr-1"></i>University #</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-door-open mr-1"></i>Hall</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-chair mr-1"></i>Seat</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-check-circle mr-1"></i>Status</th></tr></thead><tbody class="divide-y divide-gray-200">' + seats.map(s => `<tr class="hover:bg-gray-50 transition-colors"><td class="px-4 py-2 font-medium">${s.student_id && s.student_id.full_name || '-'}</td><td class="px-4 py-2 text-gray-500">${s.student_id && s.student_id.university_number || '-'}</td><td class="px-4 py-2 text-sm font-medium text-gray-700">${s.seat_id && s.seat_id.hall_id && s.seat_id.hall_id.hall_name || '-'}</td><td class="px-4 py-2 font-mono font-bold text-university-600">${s.seat_id && s.seat_id.seat_label || '-'}</td><td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs font-semibold ${s.attendance_status==='present'?'bg-green-100 text-green-700':s.attendance_status==='absent'?'bg-red-100 text-red-700':'bg-gray-100 text-gray-700'}">${s.attendance_status}</span></td></tr>`).join('') + '</tbody></table></div>'}</div><div><h4 class="font-bold text-gray-900 mb-3 flex items-center"><i class="fas fa-user-tie text-emerald-500 mr-2"></i>Supervisor Assignments (${supervisors.length})</h4>${supervisors.length === 0 ? '<p class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg"><i class="fas fa-inbox mr-1"></i>No supervisors assigned yet.</p>' : '<div class="max-h-48 overflow-y-auto border border-gray-200 rounded-xl"><table class="min-w-full divide-y divide-gray-200 text-sm"><thead class="bg-gray-50 sticky top-0"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-user mr-1"></i>Supervisor</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-crown mr-1"></i>Role</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"><i class="fas fa-door-open mr-1"></i>Hall</th></tr></thead><tbody class="divide-y divide-gray-200">' + supervisors.map(s => `<tr class="hover:bg-gray-50 transition-colors"><td class="px-4 py-2 font-medium">${s.supervisor_id && s.supervisor_id.full_name || '-'}</td><td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs font-semibold ${s.role==='head'?'bg-purple-100 text-purple-700':'bg-emerald-100 text-emerald-700'} capitalize"><i class="fas ${s.role==='head'?'fa-crown':'fa-user'} mr-1"></i>${s.role}</span></td><td class="px-4 py-2 text-gray-500">${s.exam_hall_id && s.exam_hall_id.hall_id && s.exam_hall_id.hall_id.hall_name || '-'}</td></tr>`).join('') + '</tbody></table></div>'}</div></div>`;
+        document.getElementById('modal-title').innerHTML = '<i class="fas fa-eye text-university-500 mr-2"></i>Exam Details';
         document.getElementById('modal-body').innerHTML = html;
         document.getElementById('modal').classList.remove('hidden');
         document.getElementById('modal-footer').style.display = 'none';
@@ -759,51 +777,40 @@ function openCreateSeatAssignmentModal() {
     }
 
     function openApproveProposalModal(proposalId, supervisorName, hallName) {
-  openModal('Approve Cancellation Request',
-    '<div class="space-y-4">' +
-      '<p class="text-sm text-gray-600">You are approving the cancellation request from <strong>' + supervisorName + '</strong> for <strong>' + hallName + '</strong>.</p>' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Replacement Supervisor</label><select id="f-replacement_id" class="w-full px-4 py-2 border rounded-lg bg-white"><option value="">Loading supervisors...</option></select></div>' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Response to Supervisor (optional)</label><textarea id="f-admin_response" rows="2" class="w-full px-4 py-2 border rounded-lg"></textarea></div>' +
-    '</div>',
-    async function() {
-      const replacementId = document.getElementById('f-replacement_id').value;
-      const response = document.getElementById('f-admin_response').value.trim();
-      if (!replacementId) throw new Error('Please select a replacement supervisor');
-      
-      await api.patch('/cancellation-proposals/' + proposalId + '/approve', {
-        replacement_supervisor_id: replacementId,
-        admin_response: response,
-      });
-      showToast('Request approved and replacement assigned');
+      openModal('Approve Cancellation Request',
+        `<div class="space-y-4">
+          <p class="text-sm text-gray-600">You are approving the cancellation request from <strong>${supervisorName}</strong> for <strong>${hallName}</strong>.</p>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Replacement Supervisor</label><select id="f-replacement_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading supervisors...</option></select></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-comment text-gray-400 mr-1"></i> Response to Supervisor (optional)</label><textarea id="f-admin_response" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></textarea></div>
+        </div>`,
+        async () => {
+          const replacementId = document.getElementById('f-replacement_id').value;
+          const response = document.getElementById('f-admin_response').value.trim();
+          if (!replacementId) throw new Error('Please select a replacement supervisor');
+          await api.patch('/cancellation-proposals/' + proposalId + '/approve', { replacement_supervisor_id: replacementId, admin_response: response });
+          showToast('Request approved and replacement assigned');
+        }
+      );
+      const select = document.getElementById('f-replacement_id');
+      api.get('/supervisors?limit=1000').then(res => {
+        const supervisors = res.data.supervisors || [];
+        select.innerHTML = '<option value="">-- Select Replacement --</option>' + supervisors.map(s => `<option value="${s._id}">${s.full_name} (${s.email})</option>`).join('');
+      }).catch(() => { select.innerHTML = '<option value="">Failed to load</option>'; });
     }
-  );
-  
-  // Load supervisors
-  const select = document.getElementById('f-replacement_id');
-  api.get('/supervisors').then(function(res) {
-    const supervisors = res.data.supervisors || [];
-    select.innerHTML = '<option value="">-- Select Replacement --</option>' +
-      supervisors.map(function(s) { return '<option value="' + s._id + '">' + s.full_name + ' (' + s.email + ')</option>'; }).join('');
-  }).catch(function() {
-    select.innerHTML = '<option value="">Failed to load</option>';
-  });
-}
 
-function openDeclineProposalModal(proposalId) {
-  openModal('Decline Cancellation Request',
-    '<div class="space-y-4">' +
-      '<p class="text-sm text-gray-600">The supervisor will be notified that their request has been declined.</p>' +
-      '<div><label class="block text-sm font-medium text-gray-700 mb-1">Reason for declining (optional)</label><textarea id="f-admin_response" rows="3" placeholder="Explain why the request is declined..." class="w-full px-4 py-2 border rounded-lg"></textarea></div>' +
-    '</div>',
-    async function() {
-      const response = document.getElementById('f-admin_response').value.trim();
-      await api.patch('/cancellation-proposals/' + proposalId + '/decline', {
-        admin_response: response,
-      });
-      showToast('Request declined');
+    function openDeclineProposalModal(proposalId) {
+      openModal('Decline Cancellation Request',
+        `<div class="space-y-4">
+          <p class="text-sm text-gray-600">The supervisor will be notified that their request has been declined.</p>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-comment text-gray-400 mr-1"></i> Reason for declining (optional)</label><textarea id="f-admin_response" rows="3" placeholder="Explain why the request is declined..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></textarea></div>
+        </div>`,
+        async () => {
+          const response = document.getElementById('f-admin_response').value.trim();
+          await api.patch('/cancellation-proposals/' + proposalId + '/decline', { admin_response: response });
+          showToast('Request declined');
+        }
+      );
     }
-  );
-}
 
     renderView();
   </script>

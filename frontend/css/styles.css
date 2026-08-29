@@ -1,6 +1,21 @@
 /* Custom styles beyond Tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --university-primary: #0d9488;
+  --university-secondary: #0891b2;
+  --university-accent: #0284c7;
+  --university-dark: #0f766e;
+  --university-light: #ccfbf1;
+}
+
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', 'Cairo', system-ui, -apple-system, sans-serif;
+}
+
+/* For Arabic text */
+[lang="ar"], .ar-text {
+  font-family: 'Cairo', sans-serif;
 }
 
 .fade-in {
@@ -13,7 +28,7 @@ body {
 }
 
 .table-row:hover {
-  background-color: #f3f4f6;
+  background-color: #f0fdfa;
 }
 
 .modal-overlay {
@@ -35,7 +50,72 @@ body {
 }
 
 .sidebar-link.active {
-  background-color: #e0e7ff;
-  color: #4338ca;
-  border-right: 3px solid #4338ca;
+  background-color: #f0fdfa;
+  color: #0d9488;
+  border-right: 3px solid #0d9488;
 }
+
+/* University header/footer styles */
+.university-header {
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 50%, #0284c7 100%);
+}
+
+.university-footer {
+  background: linear-gradient(135deg, #0f766e 0%, #155e75 100%);
+}
+
+/* Card hover effects */
+.university-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.university-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.15), 0 8px 10px -6px rgba(13, 148, 136, 0.1);
+  border-color: #99f6e4;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0d9488;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0f766e;
+}
+
+/* Button primary gradient */
+.btn-primary {
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0f766e 0%, #0e7490 100%);
+}
+
+/* University gradient text */
+.university-gradient-text {
+  background: linear-gradient(135deg, #0d9488 0%, #0891b2 50%, #0284c7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Status badges enhanced */
+.status-present { background-color: #d1fae5; color: #065f46; }
+.status-absent { background-color: #fee2e2; color: #991b1b; }
+.status-late { background-color: #fef3c7; color: #92400e; }
+.status-scheduled { background-color: #e0f2fe; color: #075985; }
+.status-completed { background-color: #d1fae5; color: #065f46; }
+.status-ongoing { background-color: #fef3c7; color: #92400e; }
