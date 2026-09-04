@@ -10,6 +10,7 @@ const SupervisorAssignment = require('../models/SupervisorAssignment');
 const Notification = require('../models/Notification');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
+const { shuffle } = require('../utils/shuffle');
 
 const createExam = async (body, adminId) => {
   const { hall_ids, supervisor_ids, head_supervisors, ...examBody } = body;
@@ -65,7 +66,7 @@ const createExam = async (body, adminId) => {
       const availableSeats = await Seat.find({
         hall_id: { $in: uniqueHallIds },
         status: { $in: ['available', 'occupied'] },
-      }).sort({ hall_id: 1, row_number: 1, column_number: 1 });
+      })
       
       console.log('💺 Available seats:', availableSeats.length, 'Students:', targetStudents.length);
       
@@ -74,11 +75,13 @@ const createExam = async (body, adminId) => {
           `Not enough seats. Need ${targetStudents.length}, have ${availableSeats.length}`
         );
       }
+        const shuffledStudents = shuffle(targetStudents);
+        const shuffledSeats = shuffle(availableSeats);
       
-      const assignments = targetStudents.map((student, i) => ({
+      const assignments = shuffledStudents.map((student, i) => ({
         student_id: student._id,
         exam_id: exam._id,
-        seat_id: availableSeats[i]._id,
+        seat_id: shuffledSeats[i]._id,
         attendance_status: 'pending',
         assigned_at: new Date(),
       }));
@@ -265,11 +268,13 @@ const autoAssignSeats = async (examId, hallIds = null) => {
   const availableSeats = await Seat.find({
     hall_id: { $in: targetHallIds },
     status: { $in: ['available', 'occupied'] },
-  }).sort({ hall_id: 1, row_number: 1, column_number: 1 });
+  })
 
   if (availableSeats.length < enrollments.length) {
     throw ApiError.badRequest(`Not enough seats. Need ${enrollments.length}, have ${availableSeats.length}`);
   }
+  shuffle(enrollments);
+  shuffle(availableSeats);
 
   const assignments = [];
   for (let i = 0; i < enrollments.length; i++) {

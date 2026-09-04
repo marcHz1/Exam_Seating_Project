@@ -4,7 +4,15 @@ const ApiError = require('../utils/ApiError');
 
 const createEnrollment = async (body) => {
   const existing = await Enrollment.findOne({ student_id: body.student_id, subject_id: body.subject_id });
-  if (existing) throw ApiError.conflict('Student already enrolled in this subject');
+  if (existing) {
+    if (existing.status === 'active') {
+      throw ApiError.conflict('Student already enrolled in this subject');
+    }
+    existing.status = 'active';
+    if (body.is_retake !== undefined) existing.is_retake = body.is_retake;
+    await existing.save();
+    return existing;
+  }
   return Enrollment.create(body);
 };
 

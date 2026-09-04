@@ -3,6 +3,7 @@ const Exam = require('../models/Exam');
 const Seat = require('../models/Seat');
 const ExamHall = require('../models/ExamHall');
 const Notification = require('../models/Notification');
+const { shuffle } = require('../utils/shuffle');
 const ApiError = require('../utils/ApiError');
 
 const createSeatAssignment = async (body) => {
@@ -57,19 +58,21 @@ const bulkCreateSeatAssignments = async (body) => {
     hall_id,
     status: { $in: ['available', 'occupied'] },
     _id: { $nin: assignedSeatIds },
-  }).sort({ row_number: 1, column_number: 1 });
+  })
 
   if (availableSeats.length < newStudentIds.length) {
     throw ApiError.badRequest(
       `Not enough available seats in this hall. Need ${newStudentIds.length}, have ${availableSeats.length}`
     );
   }
+    const shuffledStudentIds = shuffle(newStudentIds);
+    const shuffledSeats = shuffle(availableSeats);
 
   // Create assignments
-  const assignments = newStudentIds.map((studentId, i) => ({
+  const assignments = shuffledStudentIds.map((studentId, i) => ({
     student_id: studentId,
     exam_id,
-    seat_id: availableSeats[i]._id,
+    seat_id: shuffledSeats[i]._id,
     attendance_status: 'pending',
     assigned_at: new Date(),
   }));

@@ -1,5 +1,6 @@
 const catchAsync = require('../utils/catchAsync');
 const pick = require('../utils/pick');
+const Enrollment = require('../models/Enrollment');
 const enrollmentService = require('../services/enrollmentService');
 
 const createEnrollment = catchAsync(async (req, res) => {
@@ -12,6 +13,14 @@ const getEnrollments = catchAsync(async (req, res) => {
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
   const result = await enrollmentService.queryEnrollments(filter, options);
   res.json({ success: true, data: result });
+});
+
+const getMyEnrollments = catchAsync(async (req, res) => {
+  const enrollments = await Enrollment.find({ student_id: req.user._id, status: 'active' })
+    .populate('subject_id', 'subject_code subject_name')
+    .sort({ createdAt: -1 });
+
+  res.json({ success: true, data: { enrollments } });
 });
 
 const getEnrollment = catchAsync(async (req, res) => {
@@ -33,6 +42,7 @@ const deleteEnrollment = catchAsync(async (req, res) => {
 module.exports = {
   createEnrollment,
   getEnrollments,
+  getMyEnrollments,
   getEnrollment,
   updateEnrollment,
   deleteEnrollment,

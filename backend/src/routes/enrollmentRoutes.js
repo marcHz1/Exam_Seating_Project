@@ -3,12 +3,14 @@ const router = express.Router();
 const validate = require('../middleware/validate');
 const enrollmentValidation = require('../validations/enrollmentValidation');
 const enrollmentController = require('../controllers/enrollmentController');
-const { authAdmin } = require('../middleware/auth');
+const { authAdmin, authStudent } = require('../middleware/auth');
 
 router
   .route('/')
   .post(authAdmin, validate(enrollmentValidation.createEnrollment), enrollmentController.createEnrollment)
   .get(authAdmin, validate(enrollmentValidation.getEnrollments), enrollmentController.getEnrollments);
+
+router.get('/my-enrollments', authStudent, enrollmentController.getMyEnrollments);
 
 router
   .route('/:enrollmentId')

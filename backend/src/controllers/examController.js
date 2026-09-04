@@ -18,7 +18,7 @@ const getExams = catchAsync(async (req, res) => {
 // NEW: Student only sees exams for subjects they are enrolled in
 const getMyExams = catchAsync(async (req, res) => {
   const enrollments = await Enrollment.find({ student_id: req.user._id, status: 'active' });
-  const subjectIds = enrollments.map(e => e.subject_id.toString());
+  const subjectIds = enrollments.filter(e => e.subject_id).map(e => e.subject_id.toString());
   
   if (subjectIds.length === 0) {
     return res.json({ success: true, data: { exams: [], totalPages: 0, currentPage: 1, total: 0 } });
