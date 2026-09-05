@@ -36,29 +36,14 @@ const createExam = async (body, adminId) => {
     if (!subject) throw ApiError.notFound('Subject not found');
     console.log('📚 Subject:', subject.subject_name, 'level_year:', subject.level_year);
     
-    // STRATEGY 1: Find students via active Enrollments for this subject
-    const enrollments = await Enrollment.find({
-      subject_id: exam.subject_id,
-      status: 'active',
-    }).populate('student_id');
-    
-    console.log('📋 Active enrollments found:', enrollments.length);
-    
-    let targetStudents = [];
-    
-    if (enrollments.length > 0) {
-      // Filter by matching year
-      targetStudents = enrollments
-        .filter(e => e.student_id && e.student_id.current_level === subject.level_year)
-        .map(e => e.student_id);
-      console.log('🎯 Students matching year via enrollments:', targetStudents.length);
-    }
-    
-    // STRATEGY 2 (Fallback): If no enrollments exist, find ALL students with matching current_level
-    if (targetStudents.length === 0) {
-      console.log('⚠️ No enrollments found. Falling back to all students with current_level =', subject.level_year);
-      targetStudents = await Student.find({ current_level: subject.level_year });
-      console.log('👥 Students found by level (fallback):', targetStudents.length);
+    let targetStudents;
+    if (subject.is_mandatory) {
+      targetStudents = await Student.find({});
+      console.log('👥 Mandatory subject: all students assigned:', targetStudents.length);
+    } else {
+      const enrollments = await Enrollment.find({ subject_id: exam.subject_id, status: 'active' }).populate('student_id');
+      targetStudents = enrollments.filter(enrollment => enrollment.student_id).map(enrollment => enrollment.student_id);
+      console.log('📋 Optional subject: enrolled students assigned:', targetStudents.length);
     }
     
     // Assign seats if we found students

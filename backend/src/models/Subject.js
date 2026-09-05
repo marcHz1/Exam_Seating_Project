@@ -6,6 +6,7 @@ const subjectSchema = new mongoose.Schema(
     subject_name: { type: String, required: true, trim: true, maxlength: 100 },
     credit_hours: { type: Number, required: true, min: 1, max: 10 },
     level_year: { type: Number, required: true, min: 1, max: 10 },
+    is_mandatory: { type: Boolean, default: true },
     semester_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Semester', required: true },
   },
   { timestamps: true }

@@ -70,9 +70,10 @@
         </label>
         <div class="relative">
           <input type="password" id="password" required 
-            class="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 focus:border-university-500 outline-none transition bg-gray-50/50"
+            class="w-full px-4 py-2.5 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 focus:border-university-500 outline-none transition bg-gray-50/50"
             placeholder="Enter your password">
           <i class="fas fa-key absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+          <button type="button" onclick="togglePassword(this)" aria-label="Show password" title="Show password" class="absolute right-3 top-2.5 text-gray-400 hover:text-university-600 transition-colors"><i class="fas fa-eye"></i></button>
         </div>
       </div>
       <button type="submit" class="w-full bg-gradient-to-r from-university-600 to-university-500 text-white py-2.5 rounded-lg font-medium hover:from-university-700 hover:to-university-600 hover:shadow-lg transition-all flex items-center justify-center space-x-2">
@@ -99,6 +100,15 @@
 
   <script src="/js/api.js"></script>
   <script>
+    function togglePassword(button) {
+      const password = document.getElementById('password');
+      const visible = password.type === 'text';
+      password.type = visible ? 'password' : 'text';
+      button.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+      button.setAttribute('title', visible ? 'Show password' : 'Hide password');
+      button.innerHTML = `<i class="fas fa-eye${visible ? '' : '-slash'}"></i>`;
+    }
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const api = new ApiClient('admin');

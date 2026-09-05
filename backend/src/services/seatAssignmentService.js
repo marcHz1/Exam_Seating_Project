@@ -96,7 +96,11 @@ const querySeatAssignments = async (filter, options) => {
     .populate({
       path: 'seat_id',
       select: 'seat_label row_number column_number hall_id',
-      populate: { path: 'hall_id', select: 'hall_name' }
+      populate: {
+        path: 'hall_id',
+        select: 'hall_name building_id',
+        populate: { path: 'building_id', select: 'building_name' }
+      }
     })
     .sort(sort)
     .limit(parseInt(limit, 10))

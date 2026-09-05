@@ -110,10 +110,18 @@ const declineProposal = async (id, adminResponse) => {
   return proposal;
 };
 
+const deleteProposal = async (id) => {
+  const proposal = await getProposalById(id);
+  if (!proposal) throw ApiError.notFound('Proposal not found');
+  await CancellationProposal.deleteOne({ _id: id });
+  return proposal;
+};
+
 module.exports = {
   createProposal,
   queryProposals,
   getProposalById,
   approveProposal,
   declineProposal,
+  deleteProposal,
 };

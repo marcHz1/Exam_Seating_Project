@@ -14,8 +14,8 @@ const getSemesters = {
   query: Joi.object().keys({
     academic_year: Joi.string(),
     sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer().min(0),
+    page: Joi.number().integer().min(0),
   }),
 };
 

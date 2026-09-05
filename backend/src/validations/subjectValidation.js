@@ -7,6 +7,7 @@ const createSubject = {
     subject_name: Joi.string().max(100).required(),
     credit_hours: Joi.number().integer().min(1).max(10).required(),
     level_year: Joi.number().integer().min(1).max(10).required(),
+    is_mandatory: Joi.boolean().default(true),
     semester_id: Joi.string().custom(objectId).required(),
   }),
 };
@@ -14,10 +15,10 @@ const createSubject = {
 const getSubjects = {
   query: Joi.object().keys({
     semester_id: Joi.string().custom(objectId),
-    level_year: Joi.number().integer(),
+    level_year: Joi.number().integer().min(1).max(10),
     sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer().min(0),
+    page: Joi.number().integer().min(0),
   }),
 };
 
@@ -37,6 +38,7 @@ const updateSubject = {
       subject_name: Joi.string().max(100),
       credit_hours: Joi.number().integer().min(1).max(10),
       level_year: Joi.number().integer().min(1).max(10),
+      is_mandatory: Joi.boolean(),
       semester_id: Joi.string().custom(objectId),
     })
     .min(1),

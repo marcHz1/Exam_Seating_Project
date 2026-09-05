@@ -15,8 +15,8 @@ const getNotifications = {
     student_id: Joi.string().custom(objectId),
     status: Joi.string().valid('pending', 'sent', 'failed', 'read'),
     sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer().min(0),
+    page: Joi.number().integer().min(0),
   }),
 };
 

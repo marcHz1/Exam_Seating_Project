@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { objectId } = require('./customValidation');
+const { objectId } = require('./custom');
 
 const createProposal = {
   body: Joi.object().keys({
@@ -27,8 +27,15 @@ const declineProposal = {
   }),
 };
 
+const requestId = {
+  params: Joi.object().keys({
+    proposalId: Joi.string().custom(objectId).required(),
+  }),
+};
+
 module.exports = {
   createProposal,
   approveProposal,
   declineProposal,
+  requestId,
 };

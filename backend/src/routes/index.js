@@ -18,6 +18,7 @@ const supervisorAssignmentRoutes = require('./supervisorAssignmentRoutes');
 const seatAssignmentRoutes = require('./seatAssignmentRoutes');
 const notificationRoutes = require('./notificationRoutes');
 const cancellationProposalRoutes = require('./cancellationProposalRoutes');
+const passwordResetRoutes = require('./passwordResetRoutes');
 
 router.use('/auth', authRoutes);
 router.use('/students', studentRoutes);
@@ -36,5 +37,6 @@ router.use('/supervisor-assignments', supervisorAssignmentRoutes);
 router.use('/seat-assignments', seatAssignmentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/cancellation-proposals', cancellationProposalRoutes);
+router.use('/password-reset-requests', passwordResetRoutes);
 
 module.exports = router;

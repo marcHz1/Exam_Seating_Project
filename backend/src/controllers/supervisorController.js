@@ -21,7 +21,7 @@ const getSupervisor = catchAsync(async (req, res) => {
 });
 
 const updateSupervisor = catchAsync(async (req, res) => {
-  const supervisor = await supervisorService.updateSupervisorById(req.params.supervisorId, req.body);
+  const supervisor = await supervisorService.updateSupervisorById(req.params.supervisorId, pick(req.body, ['full_name', 'phone']));
   res.json({ success: true, data: supervisor });
 });
 

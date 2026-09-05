@@ -77,6 +77,9 @@
         <button onclick="navigate('proposals')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
           <i class="fas fa-clipboard-question w-5 text-center text-rose-500"></i><span>Cancellation Proposals</span>
         </button>
+        <button onclick="navigate('password-resets')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
+          <i class="fas fa-key w-5 text-center text-amber-500"></i><span>Password Reset Requests</span>
+        </button>
         <button onclick="navigate('admins')" class="sidebar-link w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-gray-700 flex items-center space-x-3">
           <i class="fas fa-user-shield w-5 text-center text-red-500"></i><span>Admins</span>
         </button>
@@ -190,6 +193,7 @@
         case 'supervisors': desc.textContent='Examination staff'; renderCrud('supervisors', 'supervisor'); break;
         case 'seat-assignments': desc.textContent='Manual seat allocation'; renderSeatAssignments(); break;
         case 'proposals': desc.textContent='Supervisor cancellation requests'; renderProposals(); break;
+        case 'password-resets': desc.textContent='Student and supervisor password requests'; renderPasswordResetRequests(); break;
         case 'admins': desc.textContent='Manage admin accounts'; renderCrud('admins', 'admin'); break;
       }
     }
@@ -284,6 +288,7 @@
                         <button onclick="openApproveProposalModal('${p._id}', '${(p.supervisor_id && p.supervisor_id.full_name || '').replace(/'/g, "\'")}', '${(hall.hall_name || '').replace(/'/g, "\'")}')" class="text-green-600 hover:text-green-800 transition-colors font-medium" title="Approve"><i class="fas fa-check mr-1"></i>Approve</button>
                         <button onclick="openDeclineProposalModal('${p._id}')" class="text-red-500 hover:text-red-700 transition-colors font-medium" title="Decline"><i class="fas fa-times mr-1"></i>Decline</button>
                       ` : '<span class="text-gray-400 text-xs"><i class="fas fa-check-double mr-1"></i>Resolved</span>'}
+                      <button onclick="deleteProposal('${p._id}')" class="text-gray-500 hover:text-red-700 transition-colors ml-2" title="Delete"><i class="fas fa-trash-alt"></i></button>
                     </td>
                   </tr>`;
                 }).join('')}
@@ -292,6 +297,41 @@
             ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No proposals found</p></div>' : ''}
           </div>`;
       } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    async function renderPasswordResetRequests() {
+      const area = document.getElementById('content-area');
+      try {
+        const data = await api.get('/password-reset-requests?limit=1000');
+        const items = data.data.requests || [];
+        area.innerHTML = `<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><table id="table-password-resets" class="min-w-full divide-y divide-gray-200 university-table"><thead><tr><th class="px-6 py-3 text-left">Email</th><th class="px-6 py-3 text-left">User Type</th><th class="px-6 py-3 text-left">Message</th><th class="px-6 py-3 text-left">Requested</th><th class="px-6 py-3 text-left">Status</th><th class="px-6 py-3 text-right">Actions</th></tr></thead><tbody class="divide-y divide-gray-200">${items.map(request => { const statusClass = request.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : request.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'; return `<tr class="table-row"><td class="px-6 py-4 text-sm text-gray-900">${escapeHtml(request.email)}</td><td class="px-6 py-4 text-sm text-gray-700 capitalize">${request.requester_type}</td><td class="px-6 py-4 text-sm text-gray-600 max-w-sm whitespace-normal break-words">${escapeHtml(request.message) || '-'}</td><td class="px-6 py-4 text-sm text-gray-500">${formatDateTime(request.createdAt)}</td><td class="px-6 py-4 text-sm"><span class="px-3 py-1 rounded-full text-xs font-semibold ${statusClass}">${request.status}</span></td><td class="px-6 py-4 text-right text-sm font-medium space-x-2">${request.status === 'pending' ? `<button onclick="approvePasswordReset('${request._id}')" class="text-green-600 hover:text-green-800" title="Approve"><i class="fas fa-check"></i></button><button onclick="declinePasswordReset('${request._id}')" class="text-red-500 hover:text-red-700" title="Decline"><i class="fas fa-times"></i></button>` : ''}<button onclick="deletePasswordReset('${request._id}')" class="text-gray-500 hover:text-red-700" title="Delete"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join('')}</tbody></table>${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No password reset requests</p></div>' : ''}</div>`;
+      } catch (error) { showToast(error.message, 'error'); }
+    }
+
+    function approvePasswordReset(requestId) {
+      openModal('Approve Password Reset', '<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">New Password</label><input id="reset-new-password" type="password" minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Admin Response (optional)</label><textarea id="reset-admin-response" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none"></textarea></div></div>', async () => {
+        const password = document.getElementById('reset-new-password').value;
+        if (password.length < 6) throw new Error('Password must be at least 6 characters');
+        await api.patch('/password-reset-requests/' + requestId + '/approve', { new_password: password, admin_response: document.getElementById('reset-admin-response').value.trim() });
+      });
+    }
+
+    function declinePasswordReset(requestId) {
+      openModal('Decline Password Reset', '<div><label class="block text-sm font-medium text-gray-700 mb-1">Admin Response (optional)</label><textarea id="reset-admin-response" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none"></textarea></div>', async () => {
+        await api.patch('/password-reset-requests/' + requestId + '/decline', { admin_response: document.getElementById('reset-admin-response').value.trim() });
+      });
+    }
+
+    async function deletePasswordReset(requestId) {
+      if (!confirm('Delete this password reset request?')) return;
+      try { await api.delete('/password-reset-requests/' + requestId); renderView(); showToast('Request deleted'); }
+      catch (error) { showToast(error.message, 'error'); }
+    }
+
+    async function deleteProposal(proposalId) {
+      if (!confirm('Delete this cancellation request?')) return;
+      try { await api.delete('/cancellation-proposals/' + proposalId); renderView(); showToast('Request deleted'); }
+      catch (error) { showToast(error.message, 'error'); }
     }
 
     async function renderCrud(endpoint, type) {
@@ -331,7 +371,13 @@
                 <tr>${fields.map(f => `<th class="px-6 py-3 text-left"><i class="fas ${f.icon} mr-1 opacity-70"></i>${f.label}</th>`).join('')}<th class="px-6 py-3 text-right">Actions</th></tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
-                ${items.map(item => `<tr class="table-row transition-colors">${fields.map(f => `<td class="px-6 py-4 text-sm text-gray-900">${getValue(item, f.key)}</td>`).join('')}<td class="px-6 py-4 text-right text-sm font-medium"><button onclick="deleteItem('${endpoint}', '${item._id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('')}
+                ${items.map(item => `<tr class="table-row transition-colors">
+                  ${fields.map(f => `<td class="px-6 py-4 text-sm text-gray-900">${getValue(item, f.key, f.type)}</td>`).join('')}
+                  <td class="px-6 py-4 text-right text-sm font-medium space-x-2">
+                    ${type === 'student' || type === 'supervisor' || type === 'subject' ? `<button onclick="openEditModal('${type}', '${item._id}')" class="text-university-600 hover:text-university-800 transition-colors" title="Edit"><i class="fas fa-edit"></i></button>` : ''}
+                    <button onclick="deleteItem('${endpoint}', '${item._id}')" class="text-red-500 hover:text-red-700 transition-colors" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                  </td>
+                </tr>`).join('')}
               </tbody>
             </table>
             ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No records found</p></div>' : ''}
@@ -341,10 +387,10 @@
 
     function getFields(type) {
       const map = {
-        student: [{label:'Full Name', key:'full_name', icon:'fa-user'}, {label:'University #', key:'university_number', icon:'fa-id-card'}, {label:'Email', key:'email', icon:'fa-envelope'}, {label:'Level', key:'current_level', icon:'fa-layer-group'}],
+        student: [{label:'Full Name', key:'full_name', icon:'fa-user'}, {label:'University #', key:'university_number', icon:'fa-id-card'}, {label:'Email', key:'email', icon:'fa-envelope'}, {label:'Phone', key:'phone', icon:'fa-phone'}, {label:'Level', key:'current_level', icon:'fa-layer-group'}],
         semester: [{label:'Name', key:'name', icon:'fa-tag'}, {label:'Year', key:'academic_year', icon:'fa-calendar'}, {label:'Start', key:'start_date', icon:'fa-play-circle', type:'date'}, {label:'End', key:'end_date', icon:'fa-stop-circle', type:'date'}],  
-        subject: [{label:'Code', key:'subject_code', icon:'fa-barcode'}, {label:'Name', key:'subject_name', icon:'fa-book-open'}, {label:'Credits', key:'credit_hours', icon:'fa-clock'}, {label:'Level', key:'level_year', icon:'fa-layer-group'}],
-        enrollment: [{label:'Student', key:'student_id.full_name', icon:'fa-user-graduate'}, {label:'Subject', key:'subject_id.subject_code', icon:'fa-book'}, {label:'Retake', key:'is_retake', icon:'fa-redo'}, {label:'Status', key:'status', icon:'fa-check-circle'}],
+        subject: [{label:'Code', key:'subject_code', icon:'fa-barcode'}, {label:'Name', key:'subject_name', icon:'fa-book-open'}, {label:'Credits', key:'credit_hours', icon:'fa-clock'}, {label:'Level', key:'level_year', icon:'fa-layer-group'}, {label:'Mandatory', key:'is_mandatory', icon:'fa-check-circle'}],
+        enrollment: [{label:'Student', key:'student_id.full_name', icon:'fa-user-graduate'}, {label:'Subject', key:'subject_id.subject_name', icon:'fa-book'}, {label:'Retake', key:'is_retake', icon:'fa-redo'}, {label:'Status', key:'status', icon:'fa-check-circle'}],
         examType: [{label:'Type Name', key:'type_name', icon:'fa-tag'}],
         building: [{label:'Name', key:'building_name', icon:'fa-building'}, {label:'Location', key:'location', icon:'fa-map-marker-alt'}],
         hall: [{label:'Name', key:'hall_name', icon:'fa-door-open'}, {label:'Building', key:'building_id.building_name', icon:'fa-building'}, {label:'Capacity', key:'capacity', icon:'fa-users'}, {label:'Grid', key:'rows_count', icon:'fa-th'}],
@@ -354,9 +400,12 @@
       return map[type] || [];
     }
 
-    function getValue(obj, path) {
-      return path.split('.').reduce((o,p) => o && o[p], obj) || '-';
-    }
+function getValue(obj, path, type) {
+  const val = path.split('.').reduce((o,p) => o && o[p], obj);
+  if (type === 'date') return formatDate(val);
+  if (typeof val === 'boolean') return val ? 'Yes' : 'No';
+  return val || '-';
+}
     function filterTable(searchId, tableSelector) {
       const val = document.getElementById(searchId).value.toLowerCase();
       document.querySelectorAll(tableSelector + ' tbody tr').forEach(row => {
@@ -442,6 +491,7 @@
           <div class="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <button onclick="openCreateSeatAssignmentModal()" class="btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-md flex items-center space-x-2"><i class="fas fa-plus"></i><span>Manual Assign</span></button>
             <div class="flex items-center space-x-3 w-full sm:w-auto">
+              <select id="filter-seat-subject" class="w-full sm:w-56 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">All subjects</option></select>
               <div class="relative flex-1 sm:w-64">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                 <input type="text" id="search-seats" placeholder="Search assignments..." oninput="filterTable('search-seats', '#table-seats')" onkeydown="if(event.key==='Enter'){event.preventDefault();filterTable('search-seats', '#table-seats');}" class="w-full pl-9 pr-8 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition">
@@ -470,7 +520,8 @@
               <tbody class="divide-y divide-gray-200">
                 ${items.map(item => {
                   const attClass = item.attendance_status==='present' ? 'bg-green-100 text-green-700' : item.attendance_status==='absent' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700';
-                  return `<tr class="table-row transition-colors">
+                  const subjectId = item.exam_id && item.exam_id.subject_id && item.exam_id.subject_id._id || '';
+                  return `<tr class="table-row transition-colors" data-subject-id="${subjectId}">
                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">${item.student_id && item.student_id.full_name || '-'}</td>
                     <td class="px-6 py-4 text-sm text-gray-900">${item.exam_id && item.exam_id.subject_id && item.exam_id.subject_id.subject_name || '-'}</td>
                     <td class="px-6 py-4 text-sm text-gray-900">${item.seat_id && item.seat_id.hall_id && item.seat_id.hall_id.hall_name || '-'}</td>
@@ -483,6 +534,16 @@
             </table>
             ${items.length === 0 ? '<div class="text-center py-12 text-gray-500"><i class="fas fa-inbox text-4xl mb-3 text-gray-300"></i><p>No seat assignments found</p></div>' : ''}
           </div>`;
+        const subjectFilter = document.getElementById('filter-seat-subject');
+        const subjectsResponse = await api.get('/subjects?limit=1000');
+        const subjects = subjectsResponse.data.subjects || subjectsResponse.data || [];
+        subjectFilter.innerHTML = '<option value="">All subjects</option>' + subjects.map(subject => `<option value="${subject._id}">${escapeHtml(subject.subject_name)} (${escapeHtml(subject.subject_code)})</option>`).join('');
+        subjectFilter.addEventListener('change', () => {
+          const selectedSubject = subjectFilter.value;
+          document.querySelectorAll('#table-seats tbody tr').forEach(row => {
+            row.style.display = !selectedSubject || row.dataset.subjectId === selectedSubject ? '' : 'none';
+          });
+        });
       } catch(e) { showToast(e.message, 'error'); }
     }
 
@@ -519,6 +580,14 @@
       document.getElementById('modal-body').innerHTML = html;
       document.getElementById('modal').classList.remove('hidden');
       document.getElementById('modal-footer').style.display = 'flex';
+      document.querySelectorAll('#modal-body input[type="number"]').forEach(input => {
+        input.addEventListener('input', () => {
+          if (input.value === '') return;
+          const minimum = Number(input.min || 0);
+          const value = Number(input.value);
+          if (!Number.isFinite(value) || value < minimum) input.value = minimum;
+        });
+      });
       document.getElementById('modal-save').onclick = async () => {
         try { await onSave(); closeModal(); renderView(); showToast('Saved successfully'); }
         catch(err) { showToast(err.message || 'Failed to save', 'error'); }
@@ -532,24 +601,38 @@
 
     function openCreateModal(type) {
       const forms = {
-        student: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user text-gray-400 mr-1"></i> Full Name</label><input id="f-full_name" placeholder="Enter full name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-id-card text-gray-400 mr-1"></i> University Number</label><input id="f-university_number" placeholder="e.g. 20230001" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-envelope text-gray-400 mr-1"></i> Email</label><input id="f-email" type="email" placeholder="student@alepuniv.edu.sy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-lock text-gray-400 mr-1"></i> Password</label><input id="f-password" type="password" placeholder="Set password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-layer-group text-gray-400 mr-1"></i> Current Level</label><input id="f-current_level" type="number" placeholder="1-5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-phone text-gray-400 mr-1"></i> Phone</label><input id="f-phone" placeholder="+963..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
+        student: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user text-gray-400 mr-1"></i> Full Name</label><input id="f-full_name" placeholder="Enter full name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-id-card text-gray-400 mr-1"></i> University Number</label><input id="f-university_number" placeholder="e.g. 20230001" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-envelope text-gray-400 mr-1"></i> Email</label><input id="f-email" type="email" placeholder="student@alepuniv.edu.sy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-lock text-gray-400 mr-1"></i> Password</label><input id="f-password" type="password" placeholder="Set password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-layer-group text-gray-400 mr-1"></i> Current Level</label><input id="f-current_level" type="number" min="1" max="5" placeholder="1-5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-phone text-gray-400 mr-1"></i> Phone</label><input id="f-phone" placeholder="+963..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
         semester: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag text-gray-400 mr-1"></i> Name</label><input id="f-name" placeholder="e.g. Fall 2026" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar text-gray-400 mr-1"></i> Academic Year</label><input id="f-academic_year" placeholder="e.g. 2025-2026" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-play-circle text-gray-400 mr-1"></i> Start Date</label><input id="f-start_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-stop-circle text-gray-400 mr-1"></i> End Date</label><input id="f-end_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
-        subject: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-barcode text-gray-400 mr-1"></i> Subject Code</label><input id="f-subject_code" placeholder="e.g. CS101" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book-open text-gray-400 mr-1"></i> Subject Name</label><input id="f-subject_name" placeholder="Enter subject name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-clock text-gray-400 mr-1"></i> Credit Hours</label><input id="f-credit_hours" type="number" placeholder="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-layer-group text-gray-400 mr-1"></i> Level Year</label><input id="f-level_year" type="number" placeholder="1-5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar-alt text-gray-400 mr-1"></i> Semester</label><select id="f-semester_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Semester --</option></select></div></div>`,
-        enrollment: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-graduate text-gray-400 mr-1"></i> Student</label><select id="f-student_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Student --</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book text-gray-400 mr-1"></i> Subject</label><select id="f-subject_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Subject --</option></select></div><label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"><input id="f-is_retake" type="checkbox" class="mr-3 w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm font-medium text-gray-700"><i class="fas fa-redo text-gray-400 mr-1"></i> Is Retake</span></label></div>`,
+        subject: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-barcode text-gray-400 mr-1"></i> Subject Code</label><input id="f-subject_code" placeholder="e.g. CS101" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book-open text-gray-400 mr-1"></i> Subject Name</label><input id="f-subject_name" placeholder="Enter subject name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-clock text-gray-400 mr-1"></i> Credit Hours</label><input id="f-credit_hours" type="number" min="1" placeholder="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-layer-group text-gray-400 mr-1"></i> Level Year</label><input id="f-level_year" type="number" min="1" max="10" placeholder="1-5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"><input id="f-is_mandatory" type="checkbox" checked class="mr-3 w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm font-medium text-gray-700"><i class="fas fa-check-circle text-gray-400 mr-1"></i> Mandatory Subject</span></label><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar-alt text-gray-400 mr-1"></i> Semester</label><select id="f-semester_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Semester --</option></select></div></div>`,
+        enrollment: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-book text-gray-400 mr-1"></i> Subject</label><select id="f-subject_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Subject --</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-graduate text-gray-400 mr-1"></i> Students</label><input id="enrollment-student-search" type="search" placeholder="Search students by name or university number" class="w-full px-4 py-2 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"><div id="enrollment-student-list" class="max-h-56 overflow-y-auto border border-gray-200 rounded-lg bg-white p-2"><p class="text-sm text-gray-500 p-2">Loading students...</p></div></div><label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"><input id="f-is_retake" type="checkbox" class="mr-3 w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm font-medium text-gray-700"><i class="fas fa-redo text-gray-400 mr-1"></i> Is Retake</span></label></div>`,
         examType: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag text-gray-400 mr-1"></i> Exam Type</label><select id="f-type_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="midterm">Midterm</option><option value="final">Final</option><option value="quiz">Quiz</option><option value="practical">Practical</option></select></div></div>`,
         building: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-building text-gray-400 mr-1"></i> Building Name</label><input id="f-building_name" placeholder="e.g. Engineering Building" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> Location</label><input id="f-location" placeholder="Campus location" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
-        hall: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-building text-gray-400 mr-1"></i> Building</label><select id="f-building_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Building --</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-gray-400 mr-1"></i> Hall Name</label><input id="f-hall_name" placeholder="e.g. Hall A" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-users text-gray-400 mr-1"></i> Capacity</label><input id="f-capacity" type="number" placeholder="Number of seats" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-arrows-alt-v text-gray-400 mr-1"></i> Rows</label><input id="f-rows_count" type="number" placeholder="Rows" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-arrows-alt-h text-gray-400 mr-1"></i> Columns</label><input id="f-columns_count" type="number" placeholder="Columns" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div></div>`,
+        hall: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-building text-gray-400 mr-1"></i> Building</label><select id="f-building_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Building --</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-gray-400 mr-1"></i> Hall Name</label><input id="f-hall_name" placeholder="e.g. Hall A" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-users text-gray-400 mr-1"></i> Capacity</label><input id="f-capacity" type="number" min="1" placeholder="Number of seats" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-arrows-alt-v text-gray-400 mr-1"></i> Rows</label><input id="f-rows_count" type="number" min="1" placeholder="Rows" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-arrows-alt-h text-gray-400 mr-1"></i> Columns</label><input id="f-columns_count" type="number" min="1" placeholder="Columns" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div></div>`,
         supervisor: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-gray-400 mr-1"></i> Full Name</label><input id="f-full_name" placeholder="Enter full name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-envelope text-gray-400 mr-1"></i> Email</label><input id="f-email" type="email" placeholder="supervisor@alepuniv.edu.sy" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-phone text-gray-400 mr-1"></i> Phone</label><input id="f-phone" placeholder="+963..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-lock text-gray-400 mr-1"></i> Password</label><input id="f-password" type="password" placeholder="Set password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
         admin: `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-shield text-gray-400 mr-1"></i> Full Name</label><input id="f-full_name" placeholder="Enter full name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-envelope text-gray-400 mr-1"></i> Email</label><input id="f-email" type="email" placeholder="admin@university.edu" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-lock text-gray-400 mr-1"></i> Password</label><input id="f-password" type="password" placeholder="Set password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>`,
       };
 
       openModal('Create ' + type.charAt(0).toUpperCase() + type.slice(1), forms[type], async () => {
+        if (type === 'enrollment') {
+          const subjectId = document.getElementById('f-subject_id').value;
+          const studentIds = Array.from(document.querySelectorAll('.enrollment-student-checkbox:checked')).map(input => input.value);
+          if (!subjectId) throw new Error('Please select a subject');
+          if (studentIds.length === 0) throw new Error('Please select at least one student');
+          const isRetake = document.getElementById('f-is_retake').checked;
+          await Promise.all(studentIds.map(studentId => api.post('/enrollments', { student_id: studentId, subject_id: subjectId, is_retake: isRetake })));
+          return;
+        }
         const body = {};
         const missing = [];
         document.querySelectorAll('#modal-body input, #modal-body select').forEach(el => {
           const field = el.id.replace('f-', '');
           if (el.type === 'checkbox') body[field] = el.checked;
-          else if (el.type === 'number') body[field] = parseInt(el.value) || 0;
+          else if (el.type === 'number') {
+            const value = Number(el.value);
+            const minimum = Number(el.min || 0);
+            if (!Number.isInteger(value) || value < minimum) throw new Error(`${field} must be at least ${minimum}`);
+            body[field] = value;
+          }
           else body[field] = el.value.trim();
           if (el.tagName === 'SELECT' && el.value === '') missing.push(field);
           else if (el.type !== 'checkbox' && el.type !== 'number' && !el.value.trim()) missing.push(field);
@@ -560,8 +643,31 @@
       });
 
       if (type === 'subject') populateSelect('f-semester_id', '/semesters', 'name');
-      if (type === 'enrollment') { populateSelect('f-student_id', '/students', 'full_name'); populateSelect('f-subject_id', '/subjects', 'subject_name'); }
+      if (type === 'enrollment') { populateSelect('f-subject_id', '/subjects', 'subject_name'); populateEnrollmentStudents(); }
       if (type === 'hall') populateSelect('f-building_id', '/buildings', 'building_name');
+    }
+
+    async function populateEnrollmentStudents() {
+      const list = document.getElementById('enrollment-student-list');
+      const search = document.getElementById('enrollment-student-search');
+      if (!list || !search) return;
+      try {
+        const response = await api.get('/students?limit=1000');
+        const students = response.data.students || response.data;
+        const selectedStudentIds = new Set();
+        const render = () => {
+          const query = search.value.trim().toLowerCase();
+          const visibleStudents = students.filter(student => `${student.full_name} ${student.university_number}`.toLowerCase().includes(query));
+          list.innerHTML = visibleStudents.length
+            ? visibleStudents.map(student => `<label class="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"><input type="checkbox" value="${student._id}" ${selectedStudentIds.has(student._id) ? 'checked' : ''} class="enrollment-student-checkbox w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm text-gray-700">${escapeHtml(student.full_name)} <span class="text-gray-400">(${escapeHtml(student.university_number)})</span></span></label>`).join('')
+            : '<p class="text-sm text-gray-500 p-2">No students found</p>';
+          list.querySelectorAll('.enrollment-student-checkbox').forEach(input => input.addEventListener('change', () => input.checked ? selectedStudentIds.add(input.value) : selectedStudentIds.delete(input.value)));
+        };
+        search.addEventListener('input', render);
+        render();
+      } catch (error) {
+        list.innerHTML = '<p class="text-sm text-red-500 p-2">Failed to load students</p>';
+      }
     }
 
     function openCreateExamModal() {
@@ -571,13 +677,13 @@
           <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-tag text-gray-400 mr-1"></i> Exam Type</label><select id="f-exam_type_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Exam Type --</option></select></div>
           <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-calendar text-gray-400 mr-1"></i> Exam Date</label><input id="f-exam_date" type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div>
           <div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-play text-gray-400 mr-1"></i> Start Time</label><input id="f-start_time" placeholder="HH:MM" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-stop text-gray-400 mr-1"></i> End Time</label><input id="f-end_time" placeholder="HH:MM" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div></div>
-          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-indigo-500 mr-1"></i> Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-24 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div>
-          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-24 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-indigo-500 mr-1"></i> Select Halls</label><input id="search-exam-halls" type="search" placeholder="Search halls" class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"><div id="f-hall_ids" class="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2"><p class="text-sm text-gray-500 p-2">Loading halls...</p></div></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Select Supervisor Pool</label><input id="search-exam-supervisors" type="search" placeholder="Search supervisors" class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"><div id="f-supervisor_ids" class="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2"><p class="text-sm text-gray-500 p-2">Loading supervisors...</p></div></div>
           <div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700"><i class="fas fa-crown text-yellow-500 mr-1"></i> Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div>
         </div>`, 
         async () => {
-          const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(o => o.value).filter(Boolean);
-          const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(o => o.value).filter(Boolean);
+          const hallIds = Array.from(document.querySelectorAll('#f-hall_ids input:checked')).map(input => input.value);
+          const supervisorIds = Array.from(document.querySelectorAll('#f-supervisor_ids input:checked')).map(input => input.value);
           if (hallIds.length === 0) throw new Error('Please select at least one hall');
           if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
           if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
@@ -608,31 +714,50 @@
       );
       populateSelect('f-subject_id', '/subjects', 'subject_name');
       populateSelect('f-exam_type_id', '/exam-types', 'type_name');
-      populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
-      populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
-      setTimeout(() => {
-        const updateHeadSection = () => {
-          const hallSelect = document.getElementById('f-hall_ids');
-          const supSelect = document.getElementById('f-supervisor_ids');
+      populateCheckboxList('f-hall_ids', 'search-exam-halls', '/halls', 'hall_name', 'exam-hall-checkbox', updateHeadSection);
+      populateCheckboxList('f-supervisor_ids', 'search-exam-supervisors', '/supervisors', 'full_name', 'exam-supervisor-checkbox', updateHeadSection);
+      function updateHeadSection() {
+          const hallList = document.getElementById('f-hall_ids');
+          const supList = document.getElementById('f-supervisor_ids');
           const section = document.getElementById('head-supervisors-section');
           const list = document.getElementById('head-supervisors-list');
-          const halls = Array.from(hallSelect.selectedOptions);
-          const supervisors = Array.from(supSelect.selectedOptions);
+          const halls = Array.from(hallList.querySelectorAll('input:checked')).map(input => ({ value: input.value, text: input.dataset.label }));
+          const supervisors = Array.from(supList.querySelectorAll('input:checked')).map(input => ({ value: input.value, text: input.dataset.label }));
           if (halls.length === 0 || supervisors.length === 0) { section.classList.add('hidden'); return; }
           section.classList.remove('hidden');
-          list.innerHTML = halls.map(hall => `<div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg"><span class="text-sm font-medium text-gray-700 w-32 truncate"><i class="fas fa-door-open text-indigo-400 mr-1"></i>${hall.text}</span><select id="head-for-${hall.value}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Head --</option>${supervisors.map(sup => `<option value="${sup.value}">${sup.text}</option>`).join('')}</select></div>`).join('');
+          list.innerHTML = halls.map(hall => `<div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg"><span class="text-sm font-medium text-gray-700 w-32 truncate"><i class="fas fa-door-open text-indigo-400 mr-1"></i>${escapeHtml(hall.text)}</span><select id="head-for-${hall.value}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Head --</option>${supervisors.map(sup => `<option value="${sup.value}">${escapeHtml(sup.text)}</option>`).join('')}</select></div>`).join('');
+        }
+    }
+
+    async function populateCheckboxList(listId, searchId, endpoint, labelField, checkboxClass, onChange) {
+      const list = document.getElementById(listId);
+      const search = document.getElementById(searchId);
+      if (!list || !search) return;
+      try {
+        const response = await api.get(endpoint + '?limit=1000');
+        const key = Object.keys(response.data).find(name => Array.isArray(response.data[name]));
+        const items = Array.isArray(response.data) ? response.data : (key ? response.data[key] : []);
+        const selectedIds = new Set();
+        const render = () => {
+          const query = search.value.trim().toLowerCase();
+          const visibleItems = items.filter(item => String(item[labelField] || '').toLowerCase().includes(query));
+          list.innerHTML = visibleItems.length
+            ? visibleItems.map(item => `<label class="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"><input type="checkbox" value="${item._id}" data-label="${escapeHtml(item[labelField])}" ${selectedIds.has(item._id) ? 'checked' : ''} class="${checkboxClass} w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm text-gray-700">${escapeHtml(item[labelField])}</span></label>`).join('')
+            : '<p class="text-sm text-gray-500 p-2">No results found</p>';
+          list.querySelectorAll('input[type="checkbox"]').forEach(input => input.addEventListener('change', () => { if (input.checked) selectedIds.add(input.value); else selectedIds.delete(input.value); onChange(); }));
+          onChange();
         };
-        const hallEl = document.getElementById('f-hall_ids');
-        const supEl = document.getElementById('f-supervisor_ids');
-        if (hallEl) hallEl.addEventListener('change', updateHeadSection);
-        if (supEl) supEl.addEventListener('change', updateHeadSection);
-      }, 100);
+        search.addEventListener('input', render);
+        render();
+      } catch (error) {
+        list.innerHTML = '<p class="text-sm text-red-500 p-2">Failed to load options</p>';
+      }
     }
 
     function openAutoAssignModal(examId) {
-      openModal('Auto Assign Exam', `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-indigo-500 mr-1"></i> Select Halls</label><select id="f-hall_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-32 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading halls...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Select Supervisor Pool</label><select id="f-supervisor_ids" multiple class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-32 focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">Loading supervisors...</option></select><p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Hold Ctrl/Cmd to select multiple</p></div><div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700"><i class="fas fa-crown text-yellow-500 mr-1"></i> Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div></div>`, async () => {
-        const hallIds = Array.from(document.getElementById('f-hall_ids').selectedOptions).map(o => o.value).filter(Boolean);
-        const supervisorIds = Array.from(document.getElementById('f-supervisor_ids').selectedOptions).map(o => o.value).filter(Boolean);
+      openModal('Auto Assign Exam', `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-door-open text-indigo-500 mr-1"></i> Select Halls</label><input id="search-auto-halls" type="search" placeholder="Search halls" class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"><div id="f-hall_ids" class="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2"><p class="text-sm text-gray-500 p-2">Loading halls...</p></div></div><div><label class="block text-sm font-medium text-gray-700 mb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Select Supervisor Pool</label><input id="search-auto-supervisors" type="search" placeholder="Search supervisors" class="w-full px-3 py-2 mb-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"><div id="f-supervisor_ids" class="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2"><p class="text-sm text-gray-500 p-2">Loading supervisors...</p></div></div><div id="head-supervisors-section" class="space-y-3 hidden"><label class="block text-sm font-medium text-gray-700"><i class="fas fa-crown text-yellow-500 mr-1"></i> Head Supervisors</label><p class="text-xs text-gray-500">Select one head supervisor for each hall</p><div id="head-supervisors-list" class="space-y-2"></div></div></div>`, async () => {
+        const hallIds = Array.from(document.querySelectorAll('#f-hall_ids input:checked')).map(input => input.value);
+        const supervisorIds = Array.from(document.querySelectorAll('#f-supervisor_ids input:checked')).map(input => input.value);
         if (hallIds.length === 0) throw new Error('Please select at least one hall');
         if (supervisorIds.length === 0) throw new Error('Please select at least one supervisor');
         if (supervisorIds.length < hallIds.length) throw new Error('Need at least as many supervisors as halls');
@@ -651,23 +776,23 @@
         await api.post('/exams/' + examId + '/auto-assign-supervisors', { supervisor_ids: supervisorIds, head_supervisors: headSupervisors });
         showToast('Exam auto-assigned successfully!');
       });
-      populateMultiSelect('f-hall_ids', '/halls', 'hall_name');
-      populateMultiSelect('f-supervisor_ids', '/supervisors', 'full_name');
-      setTimeout(() => {
+      populateCheckboxList('f-hall_ids', 'search-auto-halls', '/halls', 'hall_name', 'exam-hall-checkbox', updateAutoAssignHeads);
+      populateCheckboxList('f-supervisor_ids', 'search-auto-supervisors', '/supervisors', 'full_name', 'exam-supervisor-checkbox', updateAutoAssignHeads);
+      function updateAutoAssignHeads() {
         const updateHeadSection = () => {
           const hallSelect = document.getElementById('f-hall_ids');
           const supSelect = document.getElementById('f-supervisor_ids');
           const section = document.getElementById('head-supervisors-section');
           const list = document.getElementById('head-supervisors-list');
-          const halls = Array.from(hallSelect.selectedOptions);
-          const supervisors = Array.from(supSelect.selectedOptions);
+          const halls = Array.from(hallSelect.querySelectorAll('input:checked')).map(input => ({ value: input.value, text: input.dataset.label }));
+          const supervisors = Array.from(supSelect.querySelectorAll('input:checked')).map(input => ({ value: input.value, text: input.dataset.label }));
           if (halls.length === 0 || supervisors.length === 0) { section.classList.add('hidden'); return; }
           section.classList.remove('hidden');
           list.innerHTML = halls.map(hall => `<div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-lg"><span class="text-sm font-medium text-gray-700 w-32 truncate"><i class="fas fa-door-open text-indigo-400 mr-1"></i>${hall.text}</span><select id="head-for-${hall.value}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:ring-2 focus:ring-university-500 outline-none transition"><option value="">-- Select Head --</option>${supervisors.map(sup => `<option value="${sup.value}">${sup.text}</option>`).join('')}</select></div>`).join('');
         };
         document.getElementById('f-hall_ids').addEventListener('change', updateHeadSection);
         document.getElementById('f-supervisor_ids').addEventListener('change', updateHeadSection);
-      }, 100);
+      }
     }
 
     function openCreateSeatAssignmentModal() {
@@ -752,6 +877,51 @@
             try { const seatRes = await api.get('/seats?hall_id=' + hallId + '&limit=1000'); const totalSeats = (seatRes.data.seats || []).length; seatCountP.textContent = 'Total seats in hall: ' + totalSeats; seatCountP.classList.remove('hidden'); } catch(e) { seatCountP.classList.add('hidden'); }
           });
         } catch(e) { hallSelect.innerHTML = '<option value="">Failed to load halls</option>'; }
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+    }
+
+    function openEditModal(type, id) {
+      const item = currentData.find(record => record._id === id);
+      if (!item) return showToast('Record not found', 'error');
+      if (type === 'subject') {
+        const semesterId = item.semester_id && item.semester_id._id || item.semester_id || '';
+        const form = `<div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">Subject Code</label><input id="edit-subject_code" value="${escapeHtml(item.subject_code)}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label><input id="edit-subject_name" value="${escapeHtml(item.subject_name)}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Credit Hours</label><input id="edit-credit_hours" type="number" min="1" max="10" value="${item.credit_hours}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">Level Year</label><input id="edit-level_year" type="number" min="1" max="10" value="${item.level_year}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div><label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer"><input id="edit-is_mandatory" type="checkbox" ${item.is_mandatory !== false ? 'checked' : ''} class="mr-3 w-4 h-4 text-university-600 rounded focus:ring-university-500"><span class="text-sm font-medium text-gray-700">Mandatory Subject</span></label><div><label class="block text-sm font-medium text-gray-700 mb-1">Semester</label><select id="edit-semester_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-university-500 outline-none transition"></select></div></div>`;
+        openModal('Edit Subject', form, async () => {
+          const creditHours = Number(document.getElementById('edit-credit_hours').value);
+          const levelYear = Number(document.getElementById('edit-level_year').value);
+          const subjectCode = document.getElementById('edit-subject_code').value.trim();
+          const subjectName = document.getElementById('edit-subject_name').value.trim();
+          const semester = document.getElementById('edit-semester_id').value;
+          if (!subjectCode || !subjectName || !semester) throw new Error('Please fill in all fields');
+          if (![creditHours, levelYear].every(value => Number.isInteger(value) && value >= 1 && value <= 10)) throw new Error('Credit hours and level year must be between 1 and 10');
+          await api.patch('/subjects/' + id, { subject_code: subjectCode, subject_name: subjectName, credit_hours: creditHours, level_year: levelYear, is_mandatory: document.getElementById('edit-is_mandatory').checked, semester_id: semester });
+        });
+        populateSelect('edit-semester_id', '/semesters', 'name').then(() => { document.getElementById('edit-semester_id').value = semesterId; });
+        return;
+      }
+      const isStudent = type === 'student';
+      const fields = isStudent
+        ? [['full_name', 'Full Name', 'text', item.full_name], ['phone', 'Phone Number', 'text', item.phone], ['current_level', 'Current Level', 'number', item.current_level]]
+        : [['full_name', 'Full Name', 'text', item.full_name], ['phone', 'Phone Number', 'text', item.phone]];
+      const form = `<div class="space-y-4">${fields.map(([key, label, inputType, value]) => `<div><label class="block text-sm font-medium text-gray-700 mb-1">${label}</label><input id="edit-${key}" type="${inputType}" value="${escapeHtml(value)}" ${key === 'current_level' ? 'min="1" max="5"' : ''} class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 outline-none transition"></div>`).join('')}</div>`;
+      openModal('Edit ' + (isStudent ? 'Student' : 'Supervisor'), form, async () => {
+        const body = {};
+        fields.forEach(([key, , inputType]) => {
+          const input = document.getElementById('edit-' + key);
+          if (inputType === 'number') {
+            const value = Number(input.value);
+            if (!Number.isInteger(value) || value < Number(input.min) || value > Number(input.max)) throw new Error('Current level must be between 1 and 5');
+            body[key] = value;
+          } else {
+            body[key] = input.value.trim();
+            if (!body[key]) throw new Error('Please fill in all fields');
+          }
+        });
+        await api.patch('/' + (isStudent ? 'students' : 'supervisors') + '/' + id, body);
       });
     }
 

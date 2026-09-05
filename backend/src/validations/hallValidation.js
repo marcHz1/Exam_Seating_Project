@@ -15,8 +15,8 @@ const getHalls = {
   query: Joi.object().keys({
     building_id: Joi.string().custom(objectId),
     sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer().min(0),
+    page: Joi.number().integer().min(0),
   }),
 };
 

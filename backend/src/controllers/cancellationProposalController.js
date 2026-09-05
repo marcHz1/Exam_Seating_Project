@@ -38,10 +38,16 @@ const declineProposal = catchAsync(async (req, res) => {
   res.json({ success: true, data: proposal });
 });
 
+const deleteProposal = catchAsync(async (req, res) => {
+  await cancellationProposalService.deleteProposal(req.params.proposalId);
+  res.status(204).send();
+});
+
 module.exports = {
   createProposal,
   getProposals,
   getMyProposals,
   approveProposal,
   declineProposal,
+  deleteProposal,
 };

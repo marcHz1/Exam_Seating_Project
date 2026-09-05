@@ -7,7 +7,7 @@ const createStudent = {
     university_number: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-    current_level: Joi.number().integer().min(1).max(10).required(),
+    current_level: Joi.number().integer().min(1).max(5).required(),
     phone: Joi.string().allow('', null),
   }),
 };
@@ -15,10 +15,10 @@ const createStudent = {
 const getStudents = {
   query: Joi.object().keys({
     full_name: Joi.string(),
-    current_level: Joi.number().integer(),
+    current_level: Joi.number().integer().min(1).max(5),
     sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer().min(0),
+    page: Joi.number().integer().min(0),
   }),
 };
 
@@ -35,8 +35,7 @@ const updateStudent = {
   body: Joi.object()
     .keys({
       full_name: Joi.string().max(100),
-      email: Joi.string().email(),
-      current_level: Joi.number().integer().min(1).max(10),
+      current_level: Joi.number().integer().min(1).max(5),
       phone: Joi.string().allow('', null),
     })
     .min(1),

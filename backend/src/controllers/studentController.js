@@ -21,7 +21,7 @@ const getStudent = catchAsync(async (req, res) => {
 });
 
 const updateStudent = catchAsync(async (req, res) => {
-  const student = await studentService.updateStudentById(req.params.studentId, req.body);
+  const student = await studentService.updateStudentById(req.params.studentId, pick(req.body, ['full_name', 'phone', 'current_level']));
   res.json({ success: true, data: student });
 });
 

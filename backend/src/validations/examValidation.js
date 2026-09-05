@@ -27,8 +27,8 @@ const getExams = {
     status: Joi.string().valid('scheduled', 'ongoing', 'completed', 'cancelled'),
     exam_date: Joi.date(),
     sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer().min(0),
+    page: Joi.number().integer().min(0),
   }),
 };
 

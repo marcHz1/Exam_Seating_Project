@@ -67,15 +67,17 @@
         </label>
         <div class="relative">
           <input type="password" id="password" required 
-            class="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 focus:border-university-500 outline-none transition bg-gray-50/50"
+            class="w-full px-4 py-2.5 pl-10 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-university-500 focus:border-university-500 outline-none transition bg-gray-50/50"
             placeholder="Enter your password">
           <i class="fas fa-key absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+          <button type="button" onclick="togglePassword(this)" aria-label="Show password" title="Show password" class="absolute right-3 top-2.5 text-gray-400 hover:text-university-600 transition-colors"><i class="fas fa-eye"></i></button>
         </div>
       </div>
       <button type="submit" class="w-full btn-primary text-white py-2.5 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center space-x-2">
         <i class="fas fa-sign-in-alt"></i>
         <span>Sign In</span>
       </button>
+      <button type="button" onclick="requestPasswordReset()" class="w-full text-sm text-university-600 hover:text-university-800 hover:underline">Request password reset</button>
     </form>
 
     <div class="mt-6 pt-4 border-t border-gray-100">
@@ -94,8 +96,51 @@
     </div>
   </div>
 
+  <div id="reset-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4">
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+      <div class="mb-6 flex items-start justify-between">
+        <div class="flex items-center gap-3"><div class="flex h-11 w-11 items-center justify-center rounded-xl bg-university-100 text-university-600"><i class="fas fa-key"></i></div><div><h2 class="text-lg font-bold text-gray-900">Reset your password</h2><p class="text-sm text-gray-500">Send a request to the administrator</p></div></div>
+        <button type="button" onclick="closeResetModal()" class="text-gray-400 hover:text-gray-700" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <p class="mb-5 text-sm leading-6 text-gray-600">Enter the email address linked to your supervisor account. An administrator will review your request and set a new password if approved.</p>
+      <form id="resetForm" class="space-y-4"><label for="reset-email" class="block text-sm font-medium text-gray-700">Account email</label><input id="reset-email" type="email" required placeholder="supervisor@alepuniv.edu.sy" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-university-500 focus:ring-2 focus:ring-university-500"><label for="reset-message" class="block text-sm font-medium text-gray-700">Message <span class="font-normal text-gray-400">(optional)</span></label><textarea id="reset-message" maxlength="1000" rows="3" placeholder="Tell the administrator why you need a password reset" class="w-full rounded-lg border border-gray-300 px-4 py-2.5 outline-none transition focus:border-university-500 focus:ring-2 focus:ring-university-500"></textarea><div class="flex gap-3 pt-2"><button type="button" onclick="closeResetModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button><button id="reset-submit" type="submit" class="flex-1 rounded-lg bg-university-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-university-700"><i class="fas fa-paper-plane mr-2"></i>Send request</button></div></form>
+    </div>
+  </div>
+
   <script src="/js/api.js"></script>
   <script>
+    function requestPasswordReset() {
+      document.getElementById('reset-modal').classList.remove('hidden');
+      document.getElementById('reset-email').focus();
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-modal').classList.add('hidden');
+    }
+
+    document.getElementById('resetForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('reset-email').value.trim();
+      const submit = document.getElementById('reset-submit');
+      submit.disabled = true;
+      submit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+      try {
+        await new ApiClient('public').post('/password-reset-requests', { requester_type: 'supervisor', email: email, message: document.getElementById('reset-message').value.trim() });
+        closeResetModal();
+        showToast('Password reset request sent to the admin');
+      } catch (err) { showToast(err.message, 'error'); }
+      finally { submit.disabled = false; submit.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send request'; }
+    });
+
+    function togglePassword(button) {
+      const password = document.getElementById('password');
+      const visible = password.type === 'text';
+      password.type = visible ? 'password' : 'text';
+      button.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+      button.setAttribute('title', visible ? 'Show password' : 'Hide password');
+      button.innerHTML = `<i class="fas fa-eye${visible ? '' : '-slash'}"></i>`;
+    }
+
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const api = new ApiClient('supervisor');

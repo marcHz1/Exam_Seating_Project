@@ -40,9 +40,6 @@ const getStudentById = async (id) => {
 const updateStudentById = async (studentId, updateBody) => {
   const student = await getStudentById(studentId);
   if (!student) throw ApiError.notFound('Student not found');
-  if (updateBody.email && (await Student.findOne({ email: updateBody.email, _id: { $ne: studentId } }))) {
-    throw ApiError.conflict('Email already taken');
-  }
   Object.assign(student, updateBody);
   await student.save();
   return student;

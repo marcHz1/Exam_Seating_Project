@@ -7,7 +7,7 @@ const studentSchema = new mongoose.Schema(
     university_number: { type: String, required: true, unique: true, trim: true },
     email: { type: String, required: true, unique: true, trim: true, lowercase: true },
     password_hash: { type: String, required: true, minlength: 6, select: false },
-    current_level: { type: Number, required: true, min: 1, max: 10 },
+    current_level: { type: Number, required: true, min: 1, max: 5 },
     phone: { type: String, trim: true, default: null },
   },
   { timestamps: true }

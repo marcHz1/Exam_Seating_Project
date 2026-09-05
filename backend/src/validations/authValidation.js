@@ -27,7 +27,7 @@ const registerStudent = {
     university_number: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
-    current_level: Joi.number().integer().min(1).max(10).required(),
+    current_level: Joi.number().integer().min(1).max(5).required(),
     phone: Joi.string().allow('', null),
   }),
 };
