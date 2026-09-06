@@ -8,6 +8,7 @@ const Enrollment = require('../models/Enrollment');
 const SeatAssignment = require('../models/SeatAssignment');
 const SupervisorAssignment = require('../models/SupervisorAssignment');
 const Notification = require('../models/Notification');
+const notificationService = require('./notificationService');
 const ApiError = require('../utils/ApiError');
 const logger = require('../config/logger');
 const { shuffle } = require('../utils/shuffle');
@@ -71,7 +72,14 @@ const createExam = async (body, adminId) => {
         assigned_at: new Date(),
       }));
       
-      await SeatAssignment.insertMany(assignments);
+      const createdAssignments = await SeatAssignment.insertMany(assignments);
+      for (const assignment of createdAssignments) {
+        try {
+          await notificationService.notifySeatAssignment(assignment._id);
+        } catch (err) {
+          logger.error(`Failed to create notification for seat assignment ${assignment._id}`, err);
+        }
+      }
       console.log('✅ Auto-assigned', assignments.length, 'seats');
       logger.info(`Auto-assigned ${assignments.length} seats for exam ${exam._id}`);
     } else {
@@ -273,6 +281,13 @@ const autoAssignSeats = async (examId, hallIds = null) => {
   }
 
   const created = await SeatAssignment.insertMany(assignments);
+  for (const assignment of created) {
+    try {
+      await notificationService.notifySeatAssignment(assignment._id);
+    } catch (err) {
+      logger.error(`Failed to create notification for seat assignment ${assignment._id}`, err);
+    }
+  }
   logger.info(`Auto-assigned ${created.length} seats for exam ${examId}`);
   return created;
 };

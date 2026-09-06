@@ -379,7 +379,7 @@
       document.getElementById('notifList').innerHTML = '';
       document.getElementById('notifEmpty').classList.add('hidden');
       try {
-        const data = await api.get('/notifications/my-inbox');
+        const data = await api.get('/notifications/my-inbox?limit=0');
         const notifs = data.data.notifications || [];
         document.getElementById('notifLoading').classList.add('hidden');
         document.getElementById('notifCount').textContent = notifs.length + ' notification(s)';

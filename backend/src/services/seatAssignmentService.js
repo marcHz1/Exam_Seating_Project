@@ -82,6 +82,12 @@ const bulkCreateSeatAssignments = async (body) => {
 };
 
 const querySeatAssignments = async (filter, options) => {
+  if (filter.hall_id) {
+    const hallSeatIds = await Seat.find({ hall_id: filter.hall_id }).distinct('_id');
+    filter = { ...filter, seat_id: { $in: hallSeatIds } };
+    delete filter.hall_id;
+  }
+
   const { sortBy, limit = 10, page = 1 } = options;
   const sort = sortBy ? sortBy.split(':').join(' ') : 'assigned_at';
   const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);

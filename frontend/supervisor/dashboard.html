@@ -419,9 +419,10 @@
       try {
         const ehData = await api.get(`/exam-halls/${examHallId}`);
         const examId = ehData.data?.exam_id?._id;
-        if (!examId) throw new Error('Exam not found for this hall');
+        const hallId = ehData.data?.hall_id?._id;
+        if (!examId || !hallId) throw new Error('Exam hall details not found');
 
-        const saData = await api.get(`/seat-assignments?exam_id=${examId}`);
+        const saData = await api.get(`/seat-assignments?exam_id=${examId}&hall_id=${hallId}&limit=0`);
         const assignments = saData.data.assignments || [];
         document.getElementById('attendanceLoading').classList.add('hidden');
         if (assignments.length === 0) {

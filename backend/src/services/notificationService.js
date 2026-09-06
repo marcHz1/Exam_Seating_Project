@@ -58,8 +58,14 @@ const markAsRead = async (id) => {
 const notifySeatAssignment = async (seatAssignmentId) => {
   const assignment = await SeatAssignment.findById(seatAssignmentId)
     .populate('student_id')
-    .populate('exam_id')
-    .populate('seat_id');
+    .populate({
+      path: 'exam_id',
+      populate: { path: 'subject_id', select: 'subject_name subject_code' },
+    })
+    .populate({
+      path: 'seat_id',
+      populate: { path: 'hall_id', select: 'hall_name' },
+    });
 
   if (!assignment) throw ApiError.notFound('Seat assignment not found');
 
@@ -67,7 +73,9 @@ const notifySeatAssignment = async (seatAssignmentId) => {
   const seat = assignment.seat_id;
   const exam = assignment.exam_id;
 
-  const message = `Your exam seat has been assigned. Exam: ${exam._id}, Seat: ${seat.seat_label}. Please arrive 15 minutes early.`;
+  const subjectName = exam.subject_id?.subject_name || 'your subject';
+  const hallName = seat.hall_id?.hall_name || 'your assigned hall';
+  const message = `Your exam seat has been assigned. Subject: ${subjectName}, Hall: ${hallName}, Seat: ${seat.seat_label}. Please arrive 15 minutes early.`;
 
   // Create in-app notification
   await createNotification({

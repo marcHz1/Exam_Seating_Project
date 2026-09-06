@@ -21,6 +21,7 @@ const getSeatAssignments = {
   query: Joi.object().keys({
     student_id: Joi.string().custom(objectId),
     exam_id: Joi.string().custom(objectId),
+    hall_id: Joi.string().custom(objectId),
     attendance_status: Joi.string().valid('pending', 'present', 'absent', 'late'),
     sortBy: Joi.string(),
     limit: Joi.number().integer().min(0),

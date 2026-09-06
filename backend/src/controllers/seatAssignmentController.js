@@ -33,7 +33,7 @@ const bulkCreateSeatAssignments = catchAsync(async (req, res) => {
 });
 
 const getSeatAssignments = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['student_id', 'exam_id', 'attendance_status']);
+  const filter = pick(req.query, ['student_id', 'exam_id', 'hall_id', 'attendance_status']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
   const result = await seatAssignmentService.querySeatAssignments(filter, options);
   res.json({ success: true, data: result });
